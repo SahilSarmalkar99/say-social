@@ -17,7 +17,7 @@ const app = express();
 // Middlewares
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174" , "https://say-social.vercel.app/" , "https://say-social-admin.vercel.app"],
+    origin: ["http://localhost:5173", "http://localhost:5174" , "https://say-social.vercel.app" , "https://say-social-admin.vercel.app"],
     credentials: true,
   }),
 );
