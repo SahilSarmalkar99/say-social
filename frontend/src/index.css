@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Barabara";
+  src: url("./assets/font/font1.woff") format("woff");
+}
+
+@font-face {
+  font-family: "font2";
+  src: url("./assets/font/font2.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "font3";
+  src: url("./assets/font/font3.otf") format("opentype");
+}
+
+body {
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #000000 0%, #16061f 50%, #000000 100%);
+}
+
+.ring {
+  transform-style: preserve-3d;
+}
+
+.ring img {
+  backface-visibility: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "font2";
+  letter-spacing: 2px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+p,
+span,
+li,
+a {
+  font-family: var(--body-font);
+  font-weight: 400;
+}
+
+textarea {
+  font-family: "font2";
+}
+
+textarea::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.blinking-cursor {
+  display: inline-block;
+  animation: blink 1s step-end infinite;
+}

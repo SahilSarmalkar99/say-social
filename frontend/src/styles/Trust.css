@@ -1,0 +1,107 @@
+.carousel,
+.carousel-trust {
+  width: min(89vw, 1600px);
+  margin: 4px auto;
+  display: flex;
+  overflow: hidden;
+  gap: 1rem;
+  border-radius: 20px;
+
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 5%,
+    black 95%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 5%,
+    black 95%,
+    transparent
+  );
+}
+
+/* Moving Rows */
+.group-trust,
+.group-reverse-trust {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+  animation: scroll 35s linear infinite;
+}
+
+.group-reverse-trust {
+  animation-direction: reverse;
+}
+
+/* Cards */
+.card,
+.card-trust {
+  flex: 0 0 auto;
+  width: clamp(6rem, 10vw, 10rem);
+  height: clamp(6rem, 10vw, 10rem);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+  font-size: clamp(1.2rem, 2vw, 2rem);
+
+  transition: transform 0.3s ease;
+}
+
+.card {
+  background: #222;
+}
+
+.card:hover,
+.card-trust:hover {
+  transform: scale(1.05);
+}
+
+/* Infinite Scroll */
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* =========================
+   TABLET
+========================= */
+@media (max-width: 768px) {
+  .carousel,
+  .carousel-trust {
+    gap: 0.8rem;
+  }
+
+  .group,
+  .group-reverse {
+    gap: 0.8rem;
+    animation-duration: 30s;
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 480px) {
+  .carousel,
+  .carousel-trust {
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .group,
+  .group-reverse {
+    gap: 0.5rem;
+    animation-duration: 25s;
+  }
+}

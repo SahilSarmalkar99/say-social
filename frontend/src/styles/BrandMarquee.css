@@ -1,0 +1,72 @@
+/* Parent Section */
+.marquee-strip {
+  position: absolute;
+  left: 50%;
+ width: max(150vw, 1800px);
+  transform-origin: center;
+  overflow: hidden;
+  white-space: nowrap;
+    overflow-x: hidden;
+}
+
+/* Top */
+.marquee-top {
+  top: 30%;
+  transform: translateX(-50%) rotate(-3deg);
+  background: #D8C9FF;
+  padding: clamp(0.75rem, 1vw, 1.5rem) 0;
+}
+
+/* Bottom */
+.marquee-bottom {
+  top: 60%;
+  transform: translateX(-50%) rotate(2deg);
+  background: #F6C89F;
+  padding: clamp(0.75rem, 1vw, 1.5rem) 0;
+}
+
+/* Marquee Track */
+.marquee,
+.marquee-reverse {
+  display: flex;
+  width: max-content;
+  gap: clamp(2rem, 4vw, 5rem);
+}
+
+.marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.marquee-reverse {
+  animation: marqueeReverse 30s linear infinite;
+}
+
+/* Item */
+.marquee-item {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2vw, 3rem);
+  flex-shrink: 0;
+
+  font-size: clamp(1rem, 3vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-33.33%);
+  }
+}
+
+@keyframes marqueeReverse {
+  from {
+    transform: translateX(-33.33%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}

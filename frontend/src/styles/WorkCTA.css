@@ -1,0 +1,34 @@
+.diagonal-scroll {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+
+  animation: diagonalScroll 20s linear infinite;
+}
+
+
+.diagonal-scroll.reverse {
+  animation-direction: reverse;
+}
+
+@keyframes diagonalScroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-33.333%);
+  }
+}
+
+@media (max-width: 768px) {
+  .diagonal-scroll {
+    animation-duration: 24s;
+  }
+}
+
+@media (max-width: 480px) {
+  .diagonal-scroll {
+    animation-duration: 18s;
+  }
+}
