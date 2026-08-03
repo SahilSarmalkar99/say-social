@@ -8,7 +8,7 @@ const ProjectAPI = {
 }
 ,
 getBySlug: async (slug) => {
-    const res = await api.get(`/project/${slug}`)
+    const res = await api.get(`/project/slug/${slug}`)
     // console.log("Single : " , res.data);
 return res.data ; },
 };
