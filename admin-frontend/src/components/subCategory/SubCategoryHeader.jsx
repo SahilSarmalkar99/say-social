@@ -1,29 +1,40 @@
 import { Search, Plus } from "lucide-react";
 
-export default function SubCategoryHeader({ search, setSearch, onCreate }) {
+export default function SubCategoryHeader({
+  search,
+  setSearch,
+  onCreate,
+}) {
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <h1 className="text-4xl font-bold">Sub Categories</h1>
+        <h1 className="text-3xl md:text-4xl font-bold">
+          Sub Categories
+        </h1>
 
-        <p className="text-gray-500 mt-2">Manage all sub categories</p>
+        <p className="mt-2 text-gray-500">
+          Manage all sub categories
+        </p>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="relative">
-          <Search size={18} className="absolute left-4 top-4 text-gray-400" />
+      <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+        <div className="relative flex-1">
+          <Search
+            size={18}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+          />
 
           <input
             placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-11 pr-5 py-3 border rounded-xl w-80"
+            className="w-full rounded-xl border py-3 pl-11 pr-5"
           />
         </div>
 
         <button
           onClick={onCreate}
-          className="bg-black text-white rounded-xl px-6 py-3 flex items-center gap-2"
+          className="flex items-center justify-center gap-2 rounded-xl bg-black px-6 py-3 text-white whitespace-nowrap"
         >
           <Plus size={18} />
           New Sub Category

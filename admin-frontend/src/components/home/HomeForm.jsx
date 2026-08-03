@@ -58,13 +58,13 @@ export default function HomeForm({ formData, setFormData }) {
           _id: null,
           section,
           videos: [
-            {
-              url: "",
-              category: "",
-              subCategory: "",
-              company: "",
-            },
-          ],
+  {
+    url: "",
+    category: null,
+    subCategory: null,
+    company: null,
+  },
+],
           workCategories: categories.map((cat) => ({
             category: cat._id,
             videos: [],
@@ -99,11 +99,16 @@ export default function HomeForm({ formData, setFormData }) {
       };
 
       if (formData.section === "work") {
-        console.log("Saving Work Categories:");
-        console.log(JSON.stringify(formData.workCategories, null, 2));
+        // console.log("Saving Work Categories:");
+        // console.log(JSON.stringify(formData.workCategories, null, 2));
         payload.workCategories = formData.workCategories;
       } else {
-        payload.videos = formData.videos;
+       payload.videos = formData.videos.map((video) => ({
+  ...video,
+  category: video.category || null,
+  subCategory: video.subCategory || null,
+  company: video.company || null,
+}));
       }
 
       let res;
@@ -135,13 +140,13 @@ export default function HomeForm({ formData, setFormData }) {
       _id: null,
       section: "",
       videos: [
-        {
-          url: "",
-          category: "",
-          subCategory: "",
-          company: "",
-        },
-      ],
+  {
+    url: "",
+    category: null,
+    subCategory: null,
+    company: null,
+  },
+],
       workCategories: [],
     });
   };
@@ -191,11 +196,11 @@ export default function HomeForm({ formData, setFormData }) {
       videos: [
         ...formData.videos,
         {
-          url: "",
-          category: "",
-          subCategory: "",
-          company: "",
-        },
+  url: "",
+  category: null,
+  subCategory: null,
+  company: null,
+}
       ],
     });
   };

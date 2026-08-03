@@ -6,13 +6,9 @@ export default function WorkTemplate({ formData }) {
   const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
-    if (
-      !selectedCategory &&
-      workCategories.length > 0
-    ) {
+    if (!selectedCategory && workCategories.length > 0) {
       setSelectedCategory(
-        workCategories[0].category?._id ||
-          workCategories[0].category
+        workCategories[0].category?._id || workCategories[0].category,
       );
     }
   }, [workCategories]);
@@ -22,7 +18,7 @@ export default function WorkTemplate({ formData }) {
       workCategories.find(
         (group) =>
           String(group.category?._id || group.category) ===
-          String(selectedCategory)
+          String(selectedCategory),
       ) || {
         videos: [],
       }
@@ -34,17 +30,15 @@ export default function WorkTemplate({ formData }) {
 
   return (
     <div className="bg-zinc-900 rounded-3xl border border-zinc-700 shadow-xl p-8">
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-3xl font-bold text-white">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white">
           Live Preview
         </h2>
 
         <select
           value={selectedCategory}
-          onChange={(e) =>
-            setSelectedCategory(e.target.value)
-          }
-          className="bg-zinc-800 text-white border border-zinc-700 rounded-xl px-4 py-3 min-w-[250px]"
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="w-full sm:w-auto sm:min-w-[250px] rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-3 text-white outline-none transition focus:border-white"
         >
           {workCategories.map((group) => (
             <option
@@ -67,11 +61,7 @@ export default function WorkTemplate({ formData }) {
 
           <div className="grid md:grid-cols-2 gap-6">
             {featured.map((video, index) => (
-              <Card
-                key={index}
-                url={video.url}
-                large
-              />
+              <Card key={index} url={video.url} large />
             ))}
           </div>
 
@@ -80,10 +70,7 @@ export default function WorkTemplate({ formData }) {
           {remaining.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {remaining.map((video, index) => (
-                <Card
-                  key={index}
-                  url={video.url}
-                />
+                <Card key={index} url={video.url} />
               ))}
             </div>
           )}
@@ -105,11 +92,7 @@ function Card({ url, large = false }) {
       shadow-lg
       transition
       hover:scale-[1.02]
-      ${
-        large
-          ? "h-[340px]"
-          : "h-[280px]"
-      }
+      ${large ? "h-[340px]" : "h-[280px]"}
       `}
     >
       {url ? (

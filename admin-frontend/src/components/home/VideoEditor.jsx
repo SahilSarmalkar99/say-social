@@ -59,9 +59,7 @@ export default function VideoEditor({
         {formData.videos.map((video, index) => (
           <div key={index} className="border rounded-2xl p-6 bg-gray-50">
             <div className="flex justify-between items-center">
-              <h2 className="font-bold text-lg">
-                Video {index + 1}
-              </h2>
+              <h2 className="font-bold text-lg">Video {index + 1}</h2>
 
               {formData.videos.length > 1 && (
                 <button
@@ -76,45 +74,32 @@ export default function VideoEditor({
             {/* URL */}
 
             <div className="mt-5">
-              <label className="block mb-2">
-                Video URL
-              </label>
-
+              <label className="block mb-2">Video URL</label>
               <input
                 className="w-full border rounded-xl p-3"
                 value={video.url}
                 placeholder="https://..."
-                onChange={(e) =>
-                  updateVideo(index, "url", e.target.value)
-                }
+                onChange={(e) => updateVideo(index, "url", e.target.value)}
               />
             </div>
 
             <div className="grid md:grid-cols-3 gap-5 mt-6">
-
               {/* Category */}
 
               <div>
-                <label className="block mb-2">
-                  Category
-                </label>
+                <label className="block mb-2">Category</label>
 
                 <select
                   className="w-full border rounded-xl p-3"
-                  value={video.category}
+                  value={video.category || ""}
                   onChange={(e) =>
-                    updateVideo(index, "category", e.target.value)
+                    updateVideo(index, "category", e.target.value || null)
                   }
                 >
-                  <option value="">
-                    Select Category
-                  </option>
+                  <option value="">Select Category</option>
 
                   {categories.map((cat) => (
-                    <option
-                      key={cat._id}
-                      value={cat._id}
-                    >
+                    <option key={cat._id} value={cat._id}>
                       {cat.name}
                     </option>
                   ))}
@@ -124,37 +109,26 @@ export default function VideoEditor({
               {/* SubCategory */}
 
               <div>
-                <label className="block mb-2">
-                  Sub Category
-                </label>
+                <label className="block mb-2">Sub Category</label>
 
                 <select
                   className="w-full border rounded-xl p-3"
-                  value={video.subCategory}
+                  value={video.subCategory || ""}
                   onChange={(e) =>
-                    updateVideo(
-                      index,
-                      "subCategory",
-                      e.target.value
-                    )
+                    updateVideo(index, "subCategory", e.target.value || null)
                   }
                 >
-                  <option value="">
-                    Select Sub Category
-                  </option>
+                  <option value="">Select Sub Category</option>
 
                   {subCategories
                     .filter(
                       (sub) =>
                         !video.category ||
                         sub.category === video.category ||
-                        sub.category?._id === video.category
+                        sub.category?._id === video.category,
                     )
                     .map((sub) => (
-                      <option
-                        key={sub._id}
-                        value={sub._id}
-                      >
+                      <option key={sub._id} value={sub._id}>
                         {sub.name}
                       </option>
                     ))}
@@ -164,34 +138,26 @@ export default function VideoEditor({
               {/* Company */}
 
               <div>
-                <label className="block mb-2">
-                  Company
-                </label>
+                <label className="block mb-2">Company</label>
 
                 <select
                   className="w-full border rounded-xl p-3"
-                  value={video.company}
+                  value={video.company || ""}
                   onChange={(e) =>
-                    updateVideo(index, "company", e.target.value)
+                    updateVideo(index, "company", e.target.value || null)
                   }
                 >
-                  <option value="">
-                    Select Company
-                  </option>
+                  <option value="">Select Company</option>
 
                   {companies
                     .filter(
                       (company) =>
                         !video.subCategory ||
                         company.subCategory === video.subCategory ||
-                        company.subCategory?._id ===
-                          video.subCategory
+                        company.subCategory?._id === video.subCategory,
                     )
                     .map((company) => (
-                      <option
-                        key={company._id}
-                        value={company._id}
-                      >
+                      <option key={company._id} value={company._id}>
                         {company.name}
                       </option>
                     ))}
@@ -202,9 +168,7 @@ export default function VideoEditor({
         ))}
       </div>
 
-      <div className="mt-8 flex justify-center">
-        
-      </div>
+      <div className="mt-8 flex justify-center"></div>
     </>
   );
 }

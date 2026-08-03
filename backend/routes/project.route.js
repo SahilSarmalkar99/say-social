@@ -6,14 +6,15 @@ import {
   getProject,
   getProjects,
   updateProject,
-  getProjectBySlug
+  getProjectBySlug,
 } from "../controllers/project.controller.js";
 
 const router = express.Router();
 
 router.get("/", getProjects);
 
-router.get("/:slug", getProjectBySlug);
+router.get("/slug/:slug", getProjectBySlug);
+
 router.get("/:id", getProject);
 
 router.post("/", createProject);

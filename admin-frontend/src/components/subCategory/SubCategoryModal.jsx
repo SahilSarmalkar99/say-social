@@ -77,8 +77,8 @@ export default function SubCategoryModal({ open, onClose, selected, refresh }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-      <div className="bg-white rounded-3xl w-[500px] p-8">
+    <div  className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+      <div className="bg-white rounded-3xl w-[95%] max-w-lg p-5 md:p-8">
         <h2 className="text-2xl font-bold">
           {selected ? "Edit Sub Category" : "Create Sub Category"}
         </h2>
@@ -111,15 +111,15 @@ export default function SubCategoryModal({ open, onClose, selected, refresh }) {
           />
         </div>
 
-        <div className="flex justify-end gap-4 mt-8">
-          <button onClick={onClose} className="border rounded-xl px-6 py-3">
+        <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <button onClick={onClose} className="w-full sm:w-auto border rounded-xl px-6 py-3">
             Cancel
           </button>
 
           <button
             disabled={loading}
             onClick={handleSubmit}
-            className="bg-black text-white rounded-xl px-6 py-3"
+            className="w-full sm:w-auto bg-black text-white rounded-xl px-6 py-3"
           >
             {loading ? "Saving..." : selected ? "Update" : "Create"}
           </button>

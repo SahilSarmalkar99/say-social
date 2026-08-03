@@ -27,7 +27,7 @@ export default function App() {
         <Route path="/project/:id" element={<ProjectEditorPage />} />
 
         <Route path="/project/new" element={<ProjectEditorPage />} />
-        <Route path="/portfolio" element={<PortfolioPage />} />
+        <Route path="/work" element={<PortfolioPage />} />
       </Route>
     </Routes>
   );

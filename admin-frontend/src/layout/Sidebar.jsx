@@ -1,15 +1,13 @@
 import {
   LayoutDashboard,
-  Home,
   FolderTree,
   Building2,
   Layers3,
   GroupIcon,
   ProjectorIcon,
-  Workflow,
-  Video
+  Video,
+  X,
 } from "lucide-react";
-
 import { NavLink } from "react-router-dom";
 
 const menus = [
@@ -44,44 +42,65 @@ const menus = [
     path: "/project",
   },
   {
-    title: "Portfolio",
+    title: "Work",
     icon: Video,
-    path: "/portfolio",
+    path: "/work",
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ open, setOpen }) {
   return (
-    <aside className="w-72 bg-white border-r flex flex-col">
-      <div className="h-20 flex items-center px-8 border-b">
-        <h1 className="text-2xl font-bold">Nexa CMS</h1>
-      </div>
+    <>
+      {/* Overlay */}
+      <div
+        onClick={() => setOpen(false)}
+        className={`fixed inset-0 bg-black/40 z-30 lg:hidden transition-opacity
+        ${open ? "opacity-100 visible" : "opacity-0 invisible"}`}
+      />
 
-      <nav className="flex-1 p-5">
-        {menus.map((menu) => {
-          const Icon = menu.icon;
+      <aside
+  className={`fixed top-0 left-0 h-screen w-72 bg-white border-r z-40
+  transform transition-transform duration-300
+  ${open ? "translate-x-0" : "-translate-x-full"}
+  lg:translate-x-0`}
+>
+        <div className="h-20 flex items-center justify-between px-8 border-b">
+          <h1 className="text-2xl font-bold">SaySocial CMS</h1>
 
-          return (
-            <NavLink
-              key={menu.path}
-              to={menu.path}
-              end
-              className={({ isActive }) =>
-                `flex items-center gap-4 px-5 py-4 rounded-xl mb-3 transition-all
+          <button
+            onClick={() => setOpen(false)}
+            className="lg:hidden"
+          >
+            <X />
+          </button>
+        </div>
+
+        <nav className="p-5">
+          {menus.map((menu) => {
+            const Icon = menu.icon;
+
+            return (
+              <NavLink
+                key={menu.path}
+                to={menu.path}
+                end
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-4 px-5 py-4 rounded-xl mb-3 transition
                   ${
                     isActive
                       ? "bg-black text-white"
-                      : "hover:bg-gray-100 text-gray-700"
+                      : "text-gray-700 hover:bg-gray-100"
                   }`
-              }
-            >
-              <Icon size={22} />
-
-              {menu.title}
-            </NavLink>
-          );
-        })}
-      </nav>
-    </aside>
+                }
+              >
+                <Icon size={22} />
+                {menu.title}
+              </NavLink>
+            );
+          })}
+        </nav>
+      </aside>
+    </>
   );
 }

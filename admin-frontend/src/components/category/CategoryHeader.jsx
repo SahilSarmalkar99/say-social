@@ -6,50 +6,44 @@ export default function CategoryHeader({
   onCreate,
 }) {
   return (
-    <div className="flex justify-between items-center">
-
+    <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      {/* Left */}
       <div>
-
-        <h1 className="text-4xl font-bold">
-
+        <h1 className="text-3xl md:text-4xl font-bold">
           Categories
-
         </h1>
 
-        <p className="text-gray-500 mt-2">
-
+        <p className="mt-2 text-gray-500">
           Manage all categories
-
         </p>
-
       </div>
 
-      <button
-        onClick={onCreate}
-        className="bg-black text-white rounded-xl px-6 py-3 flex items-center gap-2"
-      >
-        <Plus size={18} />
+      {/* Right */}
+      <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+        {/* Search */}
+        <div className="relative flex-1">
+          <Search
+            size={18}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+          />
 
-        New Category
+          <input
+            placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-xl border py-3 pl-11 pr-5 outline-none focus:border-black"
+          />
+        </div>
 
-      </button>
-
-      <div className="relative ml-6">
-
-        <Search
-          className="absolute left-4 top-4 text-gray-400"
-          size={18}
-        />
-
-        <input
-          placeholder="Search..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border rounded-xl pl-11 pr-5 py-3 w-80"
-        />
-
+        {/* Button */}
+        <button
+          onClick={onCreate}
+          className="flex items-center justify-center gap-2 rounded-xl bg-black px-6 py-3 text-white whitespace-nowrap hover:bg-gray-800 transition"
+        >
+          <Plus size={18} />
+          New Category
+        </button>
       </div>
-
     </div>
   );
 }

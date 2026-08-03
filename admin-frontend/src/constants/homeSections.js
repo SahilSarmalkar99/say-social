@@ -14,7 +14,7 @@ export const HOME_SECTIONS = [
   {
     value: "design-identities",
     label: "Design Identities",
-    maxVideos: 4,
+    maxVideos: 8,
     template: "design",
   },
   {
