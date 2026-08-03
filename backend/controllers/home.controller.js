@@ -39,9 +39,11 @@ export const createHome = async (req, res) => {
 export const getAllHome = async (req, res) => {
   try {
     const homes = await Home.find()
-      .populate("videos.category")
       .populate("videos.subCategory")
       .populate("videos.company")
+      .populate("workCategories.category")
+      .populate("workCategories.videos.subCategory")
+      .populate("workCategories.videos.company")
       .sort({ createdAt: 1 });
 
     res.json({
@@ -64,7 +66,13 @@ export const getHomeBySection = async (req, res) => {
   try {
     const home = await Home.findOne({
       section: req.params.section,
-    });
+    })
+      .populate("videos.subCategory")
+      .populate("videos.company")
+
+      .populate("workCategories.category")
+      .populate("workCategories.videos.subCategory")
+      .populate("workCategories.videos.company");
 
     if (!home) {
       return res.status(404).json({

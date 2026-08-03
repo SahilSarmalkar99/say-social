@@ -5,6 +5,8 @@ import CompanyAPI from "../../api/company.api";
 import SubCategoryAPI from "../../api/subCategory.api";
 import { HOME_SECTIONS } from "../../constants/homeSections";
 import HomeAPI from "../../api/home.api";
+import WorkEditor from "./WorkEditor";
+import VideoEditor from "./VideoEditor";
 
 export default function HomeForm({ formData, setFormData }) {
   const [categories, setCategories] = useState([]);
@@ -16,18 +18,39 @@ export default function HomeForm({ formData, setFormData }) {
   }, []);
   useEffect(() => {
     if (!formData.section) return;
+    if (categories.length === 0) return;
+
+    console.log("Fetching:", formData.section);
 
     fetchSectionData(formData.section);
-  }, [formData.section]);
+  }, [formData.section, categories]);
 
   const fetchSectionData = async (section) => {
     try {
       const res = await HomeAPI.getBySection(section);
 
+      const data = res.data.data;
+
+      const existing = data.workCategories || [];
+
+      const merged = categories.map((cat) => {
+        const item = existing.find(
+          (x) => String(x.category?._id || x.category) === String(cat._id),
+        );
+
+        return (
+          item ?? {
+            category: cat._id,
+            videos: [],
+          }
+        );
+      });
+
       setFormData({
-        _id: res.data.data._id,
-        section: res.data.data.section,
-        videos: res.data.data.videos,
+        _id: data._id,
+        section: data.section,
+        videos: data.videos || [],
+        workCategories: merged,
       });
     } catch (err) {
       if (err.response?.status === 404) {
@@ -42,6 +65,10 @@ export default function HomeForm({ formData, setFormData }) {
               company: "",
             },
           ],
+          workCategories: categories.map((cat) => ({
+            category: cat._id,
+            videos: [],
+          })),
         });
       }
     }
@@ -54,15 +81,30 @@ export default function HomeForm({ formData, setFormData }) {
         return;
       }
 
-      if (formData.videos.length === 0) {
+      if (formData.section !== "work" && formData.videos.length === 0) {
         alert("Please add at least one video.");
+        return;
+      }
+
+      if (
+        formData.section === "work" &&
+        formData.workCategories.every((c) => c.videos.length === 0)
+      ) {
+        alert("Please add at least one work video.");
         return;
       }
 
       const payload = {
         section: formData.section,
-        videos: formData.videos,
       };
+
+      if (formData.section === "work") {
+        console.log("Saving Work Categories:");
+        console.log(JSON.stringify(formData.workCategories, null, 2));
+        payload.workCategories = formData.workCategories;
+      } else {
+        payload.videos = formData.videos;
+      }
 
       let res;
 
@@ -100,6 +142,7 @@ export default function HomeForm({ formData, setFormData }) {
           company: "",
         },
       ],
+      workCategories: [],
     });
   };
 
@@ -129,7 +172,6 @@ export default function HomeForm({ formData, setFormData }) {
       section: value,
     }));
   };
-
   const updateVideo = (index, field, value) => {
     const temp = [...formData.videos];
 
@@ -190,144 +232,45 @@ export default function HomeForm({ formData, setFormData }) {
       {/* Videos */}
 
       <div className="mt-10 space-y-8">
-        {formData.videos.map((video, index) => (
-          <div key={index} className="border rounded-2xl p-6 bg-gray-50">
-            <div className="flex justify-between items-center">
-              <h2 className="font-bold text-lg">Video {index + 1}</h2>
-
-              {formData.videos.length > 1 && (
-                <button
-                  onClick={() => removeVideo(index)}
-                  className="text-red-500 font-medium hover:text-red-700"
-                >
-                  Remove
-                </button>
-              )}
-            </div>
-
-            <div className="mt-5">
-              <label className="block mb-2 text-sm font-medium">
-                Video URL
-              </label>
-
-              <input
-                className="w-full border rounded-xl p-3"
-                placeholder="https://..."
-                value={video.url}
-                onChange={(e) => updateVideo(index, "url", e.target.value)}
-              />
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-5 mt-6">
-              {/* Category */}
-
-              <div>
-                <label className="block mb-2 text-sm font-medium">
-                  Category
-                </label>
-
-                <select
-                  className="w-full border rounded-xl p-3"
-                  value={video.category}
-                  onChange={(e) =>
-                    updateVideo(index, "category", e.target.value)
-                  }
-                >
-                  <option value="">Select Category</option>
-
-                  {categories.map((cat) => (
-                    <option key={cat._id} value={cat._id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Sub Category */}
-
-              <div>
-                <label className="block mb-2 text-sm font-medium">
-                  Sub Category
-                </label>
-
-                <select
-                  className="w-full border rounded-xl p-3"
-                  value={video.subCategory}
-                  onChange={(e) =>
-                    updateVideo(index, "subCategory", e.target.value)
-                  }
-                >
-                  <option value="">Select Sub Category</option>
-
-                  {subCategories
-                    .filter(
-                      (sub) =>
-                        !video.category ||
-                        sub.category === video.category ||
-                        sub.category?._id === video.category,
-                    )
-                    .map((sub) => (
-                      <option key={sub._id} value={sub._id}>
-                        {sub.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              {/* Company */}
-
-              <div>
-                <label className="block mb-2 text-sm font-medium">
-                  Company
-                </label>
-
-                <select
-                  className="w-full border rounded-xl p-3"
-                  value={video.company}
-                  onChange={(e) =>
-                    updateVideo(index, "company", e.target.value)
-                  }
-                >
-                  <option value="">Select Company</option>
-
-                  {companies
-                    .filter(
-                      (company) =>
-                        !video.subCategory ||
-                        company.subCategory === video.subCategory ||
-                        company.subCategory?._id === video.subCategory,
-                    )
-                    .map((company) => (
-                      <option key={company._id} value={company._id}>
-                        {company.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            </div>
-          </div>
-        ))}
+        {formData.section === "work" ? (
+          <WorkEditor
+            categories={categories}
+            subCategories={subCategories}
+            companies={companies}
+            formData={formData}
+            setFormData={setFormData}
+          />
+        ) : (
+          <>
+            <VideoEditor
+              categories={categories}
+              subCategories={subCategories}
+              companies={companies}
+              formData={formData}
+              setFormData={setFormData}
+            />
+          </>
+        )}
       </div>
 
       {/* Add Button */}
 
-      <div className="mt-8 flex justify-center">
-        <button
-          disabled={formData.videos.length >= maxVideos}
-          onClick={addVideo}
-          className={`px-6 py-3 rounded-xl text-white transition
-
-        ${
-          formData.videos.length >= maxVideos
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-indigo-600 hover:bg-indigo-700"
-        }
-
-        `}
-        >
-          Add Video ({formData.videos.length}/{maxVideos})
-        </button>
-      </div>
+      {formData.section !== "work" && (
+        <div className="mt-8 flex justify-center">
+          <button
+            disabled={formData.videos.length >= maxVideos}
+            onClick={addVideo}
+            className={`px-6 py-3 rounded-xl text-white transition
+      ${
+        formData.videos.length >= maxVideos
+          ? "bg-gray-400 cursor-not-allowed"
+          : "bg-indigo-600 hover:bg-indigo-700"
+      }`}
+          >
+            Add Video ({formData.videos.length}/{maxVideos})
+          </button>
+        </div>
+      )}
 
       {/* Action Buttons */}
 

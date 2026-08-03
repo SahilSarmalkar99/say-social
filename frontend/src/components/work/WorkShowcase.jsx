@@ -61,7 +61,7 @@ console.log(res.data.data);
     return categoryMatch && subCategoryMatch;
   });
 
-  console.log(filteredItems);
+  // console.log(filteredItems);
 
   return (
     <section className="py-28">

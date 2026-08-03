@@ -4,17 +4,19 @@ import HomePreview from "../components/preview/HomePreview";
 
 export default function HomePage() {
   const [formData, setFormData] = useState({
-    section: "",
+  section: "",
 
-    videos: [
-      {
-        url: "",
-        category: "",
-        subCategory: "",
-        company: "",
-      },
-    ],
-  });
+  videos: [
+    {
+      url: "",
+      category: "",
+      subCategory: "",
+      company: "",
+    },
+  ],
+
+  workCategories: [],
+});
 
   return (
     <div className="p-8">

@@ -5,13 +5,6 @@ const videoSchema = new mongoose.Schema(
     url: {
       type: String,
       required: true,
-      trim: true,
-    },
-
-    category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
-      default: null,
     },
 
     subCategory: {
@@ -26,9 +19,23 @@ const videoSchema = new mongoose.Schema(
       default: null,
     },
   },
+  { _id: false }
+);
+
+const workCategorySchema = new mongoose.Schema(
   {
-    _id: false,
-  }
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
+
+    videos: {
+      type: [videoSchema],
+      default: [],
+    },
+  },
+  { _id: false }
 );
 
 const homeSchema = new mongoose.Schema(
@@ -45,8 +52,15 @@ const homeSchema = new mongoose.Schema(
       ],
     },
 
+    // Used by all sections except "work"
     videos: {
       type: [videoSchema],
+      default: [],
+    },
+
+    // Used only when section === "work"
+    workCategories: {
+      type: [workCategorySchema],
       default: [],
     },
   },

@@ -6,9 +6,11 @@ import useFadeUpCards from "../../hooks/useFadeIn";
 import HomeAPI from "../../api/home.api";
 
 export default function WorkResults() {
-  const [active, setActive] = useState("Production");
+  const [workCategories, setWorkCategories] = useState([]);
+  const [active, setActive] = useState("");
   const [workData, setWorkData] = useState([]);
   const [loading, setLoading] = useState(true);
+  // console.log(workCategories);
 
   const textReveal = useTextReveal();
   const fadeIn = useFadeUpCards();
@@ -17,12 +19,20 @@ export default function WorkResults() {
     const fetchWork = async () => {
       try {
         const res = await HomeAPI.getAll();
+        // console.log(res);
+        const workSection = res.data.find(
+  (item) => item.section === "work"
+);
 
-        const workSection = res.data.find((item) => item.section === "work");
+        const categories = workSection?.workCategories || [];
 
-        setWorkData(workSection?.videos || []);
-      } catch (error) {
-        console.error(error);
+        setWorkCategories(categories);
+
+        if (categories.length) {
+          setActive(categories[0].category?.name);
+        }
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -31,15 +41,25 @@ export default function WorkResults() {
     fetchWork();
   }, []);
 
-  const items = workData.filter((item) => item.category?.name === active);
+  // const items = workData.filter((item) => item.category?.name === active);
 
-  const largeCards = items.slice(0, 2);
-  const smallCards = items.slice(2);
+  // const largeCards = items.slice(0, 2);
+  // const smallCards = items.slice(2);
 
   // filters
-  const filters = [
-    ...new Set(workData.map((item) => item.category?.name).filter(Boolean)),
-  ];
+  const filters = workCategories.map((group) => group.category?.name);
+
+  const activeCategory = workCategories.find(
+    (group) => group.category?.name === active,
+  ) || {
+    videos: [],
+  };
+
+  const largeCards = activeCategory.videos.slice(0, 2);
+
+  const smallCards = activeCategory.videos.slice(2);
+
+
 
   if (loading) {
     return (
@@ -175,9 +195,7 @@ function Card({ card, large = false }) {
               {card.subCategory?.name}
             </h3>
 
-            <p className="text-sm text-white/70">
-              {card.category?.name}
-            </p>
+            <p className="text-sm text-white/70">{card.category?.name}</p>
           </div>
 
           <div
