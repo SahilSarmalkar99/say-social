@@ -20,7 +20,7 @@ export const HOME_SECTIONS = [
   {
     value: "featured-work",
     label: "Featured Work",
-    maxVideos: 6,
+    maxVideos: 10,
     template: "featured",
   },
 ];
