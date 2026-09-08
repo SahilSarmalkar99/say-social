@@ -36,6 +36,8 @@ export default function VideoEditor({
         ...formData.videos,
         {
           url: "",
+          logoUrl: "",
+          logoName: "",
           category: "",
           subCategory: "",
           company: "",
@@ -57,12 +59,13 @@ export default function VideoEditor({
     <>
       <div className="space-y-8">
         {formData.videos.map((video, index) => (
-          <div key={index} className="border rounded-2xl p-6 bg-gray-50">
+          <div key={index} className="border rounded-2xl p-6 ">
             <div className="flex justify-between items-center">
               <h2 className="font-bold text-lg">Video {index + 1}</h2>
 
               {formData.videos.length > 1 && (
                 <button
+                  type="button"
                   onClick={() => removeVideo(index)}
                   className="text-red-500 hover:text-red-700"
                 >
@@ -71,17 +74,61 @@ export default function VideoEditor({
               )}
             </div>
 
-            {/* URL */}
+            {/* Video URL */}
 
             <div className="mt-5">
               <label className="block mb-2">Video URL</label>
+
               <input
+                type="text"
                 className="w-full border rounded-xl p-3"
-                value={video.url}
+                value={video.url || ""}
                 placeholder="https://..."
-                onChange={(e) => updateVideo(index, "url", e.target.value)}
+                onChange={(e) =>
+                  updateVideo(index, "url", e.target.value)
+                }
               />
             </div>
+
+            {/* ONLY FOR CONTENT CREATING */}
+
+            {formData.section === "content-creating" && (
+              <div className="grid md:grid-cols-2 gap-5 mt-6">
+                {/* Logo URL */}
+
+                <div>
+                  <label className="block mb-2">Logo URL</label>
+
+                  <input
+                    type="text"
+                    className="w-full border rounded-xl p-3"
+                    value={video.logoUrl || ""}
+                    placeholder="https://example.com/logo.png"
+                    onChange={(e) =>
+                      updateVideo(index, "logoUrl", e.target.value)
+                    }
+                  />
+                </div>
+
+                {/* Logo Name */}
+
+                <div>
+                  <label className="block mb-2">Logo Name</label>
+
+                  <input
+                    type="text"
+                    className="w-full border rounded-xl p-3"
+                    value={video.logoName || ""}
+                    placeholder="Nike"
+                    onChange={(e) =>
+                      updateVideo(index, "logoName", e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Category / SubCategory / Company */}
 
             <div className="grid md:grid-cols-3 gap-5 mt-6">
               {/* Category */}
@@ -93,7 +140,11 @@ export default function VideoEditor({
                   className="w-full border rounded-xl p-3"
                   value={video.category || ""}
                   onChange={(e) =>
-                    updateVideo(index, "category", e.target.value || null)
+                    updateVideo(
+                      index,
+                      "category",
+                      e.target.value || null
+                    )
                   }
                 >
                   <option value="">Select Category</option>
@@ -115,7 +166,11 @@ export default function VideoEditor({
                   className="w-full border rounded-xl p-3"
                   value={video.subCategory || ""}
                   onChange={(e) =>
-                    updateVideo(index, "subCategory", e.target.value || null)
+                    updateVideo(
+                      index,
+                      "subCategory",
+                      e.target.value || null
+                    )
                   }
                 >
                   <option value="">Select Sub Category</option>
@@ -125,7 +180,7 @@ export default function VideoEditor({
                       (sub) =>
                         !video.category ||
                         sub.category === video.category ||
-                        sub.category?._id === video.category,
+                        sub.category?._id === video.category
                     )
                     .map((sub) => (
                       <option key={sub._id} value={sub._id}>
@@ -144,7 +199,11 @@ export default function VideoEditor({
                   className="w-full border rounded-xl p-3"
                   value={video.company || ""}
                   onChange={(e) =>
-                    updateVideo(index, "company", e.target.value || null)
+                    updateVideo(
+                      index,
+                      "company",
+                      e.target.value || null
+                    )
                   }
                 >
                   <option value="">Select Company</option>
@@ -154,7 +213,7 @@ export default function VideoEditor({
                       (company) =>
                         !video.subCategory ||
                         company.subCategory === video.subCategory ||
-                        company.subCategory?._id === video.subCategory,
+                        company.subCategory?._id === video.subCategory
                     )
                     .map((company) => (
                       <option key={company._id} value={company._id}>
@@ -168,7 +227,6 @@ export default function VideoEditor({
         ))}
       </div>
 
-      <div className="mt-8 flex justify-center"></div>
     </>
   );
 }

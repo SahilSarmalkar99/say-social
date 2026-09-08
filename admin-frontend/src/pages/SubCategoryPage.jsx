@@ -43,7 +43,7 @@ export default function SubCategoryPage() {
   );
 
   return (
-    <>
+    <div className="admin-page">
       <SubCategoryHeader
         search={search}
         setSearch={setSearch}
@@ -83,6 +83,6 @@ export default function SubCategoryPage() {
         selected={selected}
         refresh={fetchData}
       />
-    </>
+    </div>
   );
 }

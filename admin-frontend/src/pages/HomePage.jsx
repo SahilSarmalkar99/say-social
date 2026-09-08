@@ -19,7 +19,7 @@ export default function HomePage() {
 });
 
   return (
-    <div className="p-8">
+    <div className="admin-page space-y-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Home Section</h1>
 

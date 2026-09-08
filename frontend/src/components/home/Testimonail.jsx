@@ -1,75 +1,102 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Star } from "lucide-react";
+
 import "../../styles/Testinomial.css";
 import useTextReveal from "../../hooks/useTextReveal";
 import useFadeUpCards from "../../hooks/useFadeIn";
 
-const testimonials = [
-  {
-    name: "Anushka Sharma",
-    location: "Mumbai, Maharashtra",
-    review:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    name: "Virat Kohli",
-    location: "Mumbai, Maharashtra",
-    review:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    name: "Goli Beta",
-    location: "Mumbai, Maharashtra",
-    review:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    name: "Jethalal Gada",
-    location: "Mumbai, Maharashtra",
-    review:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-];
+import { getTestimonials } from "../../api/adminContentApi";
 
 export default function Testimonial() {
   const textReveal = useTextReveal();
   const fadeIn = useFadeUpCards();
+
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        setLoading(true);
+
+        const response = await getTestimonials();
+
+        console.log("Testimonials API:", response.data);
+
+        setTestimonials(response.data.data || []);
+      } catch (error) {
+        console.error("Failed to fetch testimonials:", error);
+
+        setError("Unable to load testimonials");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
+
   return (
     <section ref={fadeIn} className="py-15 md:py-24 text-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4">
-        <h2 ref={textReveal}
+      <div className="max-w-[1600px] mx-auto px-6">
+        {/* Heading */}
+        <h2
+          ref={textReveal}
           className="
-            text-center
-            text-3xl
-            sm:text-4xl
-            md:text-[72px]
-            font-light
-            mb-12
-            md:mb-14
-          "
+      text-center
+      text-3xl
+      sm:text-4xl
+      md:text-[72px]
+      font-light
+      mb-12
+      md:mb-14
+    "
         >
           What Our Clients Think
         </h2>
 
-        <div className="fade-card testimonialcarousel-trust">
-          <div className="group-trust">
-            {testimonials.map((item, i) => (
-              <TestimonialCard key={i} {...item} />
-            ))}
+        {/* Loading */}
+        {loading && (
+          <div className="text-center text-white/50 py-10">
+            Loading testimonials...
           </div>
+        )}
 
-          <div className="group-trust" aria-hidden>
-            {testimonials.map((item, i) => (
-              <TestimonialCard key={`copy-${i}`} {...item} />
-            ))}
+        {/* Error */}
+        {!loading && error && (
+          <div className="text-center text-red-400 py-10">{error}</div>
+        )}
+
+        {/* No Testimonials */}
+        {!loading && !error && testimonials.length === 0 && (
+          <div className="text-center text-white/50 py-10">
+            No testimonials available.
           </div>
-        </div>
+        )}
+
+        {/* Testimonials */}
+        {!loading && !error && testimonials.length > 0 && (
+          <div className="fade-card testimonialcarousel-trust">
+            <div className="group-trust">
+              {testimonials.map((item) => (
+                <TestimonialCard key={item._id} {...item} />
+              ))}
+            </div>
+
+            <div className="group-trust" aria-hidden="true">
+              {testimonials.map((item) => (
+                <TestimonialCard key={`copy-${item._id}`} {...item} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
 }
 
-function TestimonialCard({ name, location, review }) {
+function TestimonialCard({ name, location, rating, review }) {
   return (
     <div
       className="
@@ -115,7 +142,7 @@ function TestimonialCard({ name, location, review }) {
             text-black
           "
         >
-          {name.charAt(0)}
+          {name?.charAt(0)?.toUpperCase()}
         </div>
 
         <div>
@@ -130,9 +157,7 @@ function TestimonialCard({ name, location, review }) {
             {name}
           </h3>
 
-          <p className="mt-2 text-xs md:text-sm text-white/40">
-            {location}
-          </p>
+          <p className="mt-2 text-xs md:text-sm text-white/40">{location}</p>
         </div>
       </div>
 
@@ -142,8 +167,8 @@ function TestimonialCard({ name, location, review }) {
           <Star
             key={i}
             size={18}
-            fill="currentColor"
-            className="text-yellow-300"
+            fill={i < rating ? "currentColor" : "none"}
+            className={i < rating ? "text-yellow-300" : "text-white/20"}
           />
         ))}
       </div>

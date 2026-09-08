@@ -65,7 +65,7 @@ export default function BrandingSection() {
           <div className="flex flex-col gap-5">
             <Card image={brandingItems[0]?.url} className="h-[500px]" />
 
-            <Card image={brandingItems[1]?.url} className="h-[300px]" />
+            <Card image={brandingItems[1]?.url} className="h-[325px]" />
           </div>
 
           {/* CENTER */}

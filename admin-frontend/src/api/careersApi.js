@@ -1,0 +1,11 @@
+import api from "./axios";
+export const getJobs=()=>api.get("/jobs");
+export const getAllJobs=()=>api.get("/jobs/admin");
+export const createJob=(payload)=>api.post("/jobs",payload);
+export const updateJob=(id,payload)=>api.put(`/jobs/${id}`,payload);
+export const deleteJob=(id)=>api.delete(`/jobs/${id}`);
+export const getCareerSetting=()=>api.get("/career-settings");
+export const saveCareerSetting=(payload)=>api.put("/career-settings",payload);
+export const getApplications=()=>api.get("/applications/admin");
+export const updateApplicationStatus=(id,status)=>api.patch(`/applications/admin/${id}/status`,{status});
+export const submitApplication=(formData)=>api.post("/applications",formData,{headers:{"Content-Type":"multipart/form-data"}});

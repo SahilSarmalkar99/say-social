@@ -21,12 +21,12 @@ const useCarousel = (cardsRef) => {
 
       const radius =
         width < 640
-          ? 550 // mobile only
+          ? 650 // mobile only
           : width < 768
             ? 800 // tablet
             : width < 1024
               ? 900 // keep as is
-              : 1000; // keep as is
+              : 1500; // keep as is
 
       cards.forEach((card, i) => {
         const progress = ((i + offset) % total) / total;

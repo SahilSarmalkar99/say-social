@@ -41,7 +41,7 @@ export default function CompanyPage() {
   );
 
   return (
-    <>
+    <div className="admin-page">
       <CompanyHeader
         search={search}
         setSearch={setSearch}
@@ -81,6 +81,6 @@ export default function CompanyPage() {
         selected={selected}
         refresh={fetchCompanies}
       />
-    </>
+    </div>
   );
 }

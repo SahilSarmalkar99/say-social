@@ -10,6 +10,10 @@ import TeamPage from "./pages/TeamPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import ProjectEditorPage from "./components/project/ProjectEditorPage";
 import PortfolioPage from "./pages/PortfolioPage";
+import AdminVideos from "./pages/AdminVideos";
+import AdminLogos from "./pages/AdminLogos";
+import AdminTestimonials from "./pages/AdminTestimonials";
+import AdminCareers from "./pages/AdminCareers";
 
 export default function App() {
   return (
@@ -17,6 +21,7 @@ export default function App() {
       <Route element={<AdminLayout />}>
         <Route path="/" element={<HomePage />} />
 
+        <Route path="/video" element={<AdminVideos />} />
         <Route path="/categories" element={<CategoryPage />} />
 
         <Route path="/sub-categories" element={<SubCategoryPage />} />
@@ -28,6 +33,9 @@ export default function App() {
 
         <Route path="/project/new" element={<ProjectEditorPage />} />
         <Route path="/work" element={<PortfolioPage />} />
+        <Route path="/trustedBy" element={<AdminLogos />} />
+        <Route path="/testimonials" element={<AdminTestimonials />} />
+        <Route path="/job-roles" element={<AdminCareers />} />
       </Route>
     </Routes>
   );

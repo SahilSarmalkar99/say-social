@@ -9,6 +9,11 @@ export default function Navbar({ visible = true }) {
 
   const lastScrollY = useRef(0);
 
+  // Phone / WhatsApp number
+  const phoneNumber = "7021374839";
+  const phoneLink = `tel:+91${phoneNumber}`;
+  const whatsappLink = `https://wa.me/91${phoneNumber}`;
+
   useEffect(() => {
     const handleScroll = () => {
       const current = window.scrollY;
@@ -28,8 +33,9 @@ export default function Navbar({ visible = true }) {
       passive: true,
     });
 
-    return () =>
+    return () => {
       window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   const navLinks = [
@@ -59,24 +65,27 @@ export default function Navbar({ visible = true }) {
 
   return (
     <>
+      {/* =========================
+          NAVBAR
+      ========================== */}
       <header
-  className={`
-    fixed
-    top-2 md:top-5
-    left-0
-    w-full
-    z-[9999]
-    px-3 sm:px-4 lg:px-6
-    transition-all
-    duration-700
-    ease-out
-    ${
-      shouldShow
-        ? "translate-y-0 opacity-100"
-        : "-translate-y-full opacity-0 pointer-events-none"
-    }
-  `}
->
+        className={`
+          fixed
+          top-2 md:top-5
+          left-0
+          w-full
+          z-[9999]
+          px-3 sm:px-4 lg:px-6
+          transition-all
+          duration-700
+          ease-out
+          ${
+            shouldShow
+              ? "translate-y-0 opacity-100"
+              : "-translate-y-full opacity-0 pointer-events-none"
+          }
+        `}
+      >
         <div className="max-w-7xl mx-auto relative">
           {/* Glow */}
           <div
@@ -93,6 +102,7 @@ export default function Navbar({ visible = true }) {
             "
           />
 
+          {/* Main Navbar */}
           <div
             className={`
               relative
@@ -106,14 +116,10 @@ export default function Navbar({ visible = true }) {
               transition-all
               duration-500
               overflow-hidden
-              ${
-                scrolled
-                  ? "scale-[0.98]"
-                  : "scale-100"
-              }
+              ${scrolled ? "scale-[0.98]" : "scale-100"}
             `}
           >
-            {/* subtle gradient */}
+            {/* Subtle Gradient */}
             <div
               className="
                 absolute
@@ -125,8 +131,21 @@ export default function Navbar({ visible = true }) {
               "
             />
 
-            <div className="relative h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
-              {/* LOGO */}
+            <div
+              className="
+                relative
+                h-full
+                flex
+                items-center
+                justify-between
+                px-4
+                sm:px-6
+                lg:px-8
+              "
+            >
+              {/* =========================
+                  LOGO
+              ========================== */}
               <div className="justify-self-start flex items-center gap-5">
                 <NavLink to="/">
                   <div className="flex items-center gap-4 group cursor-pointer">
@@ -190,18 +209,22 @@ export default function Navbar({ visible = true }) {
                     </div>
                   </div>
                 </NavLink>
-
-                
               </div>
 
-              {/* DESKTOP NAV */}
-              <nav className="hidden md:flex justify-self-center items-center gap-10">
+              {/* =========================
+                  DESKTOP NAVIGATION
+              ========================== */}
+              <nav
+                className="
+                  hidden
+                  md:flex
+                  justify-self-center
+                  items-center
+                  gap-10
+                "
+              >
                 {navLinks.map((link) => (
-                  <NavLink
-                    key={link.name}
-                    to={link.path}
-                    className="group"
-                  >
+                  <NavLink key={link.name} to={link.path} className="group">
                     {({ isActive }) => (
                       <div
                         className={`
@@ -212,13 +235,10 @@ export default function Navbar({ visible = true }) {
                           text-[12px]
                           tracking-[0.25em]
                           font-medium
-                          ${
-                            isActive
-                              ? "text-white"
-                              : "text-white/55"
-                          }
+                          ${isActive ? "text-white" : "text-white/55"}
                         `}
                       >
+                        {/* Normal Text */}
                         <span
                           className="
                             block
@@ -230,6 +250,7 @@ export default function Navbar({ visible = true }) {
                           {link.name}
                         </span>
 
+                        {/* Hover Text */}
                         <span
                           className="
                             absolute
@@ -249,10 +270,16 @@ export default function Navbar({ visible = true }) {
                 ))}
               </nav>
 
-              {/* CTA */}
+              {/* =========================
+                  DESKTOP CTA
+              ========================== */}
               <div className="justify-self-end">
-                <NavLink
-                  to="/book"
+                {/* 
+                  Desktop:
+                  Clicking this button opens phone dialer
+                */}
+                <a
+                  href={phoneLink}
                   className="
                     hidden
                     md:flex
@@ -272,6 +299,7 @@ export default function Navbar({ visible = true }) {
                     hover:scale-105
                   "
                 >
+                  {/* Shine Effect */}
                   <span
                     className="
                       absolute
@@ -287,6 +315,7 @@ export default function Navbar({ visible = true }) {
                     "
                   />
 
+                  {/* Icon */}
                   <div
                     className="
                       relative
@@ -306,23 +335,22 @@ export default function Navbar({ visible = true }) {
                     <ArrowUpRight size={14} />
                   </div>
 
-                  <span className="relative">
-                    Book A Call
-                  </span>
-                </NavLink>
+                  {/* Text */}
+                  <span className="relative">Book A Call</span>
+                </a>
 
-                {/* Mobile Button */}
+                {/* =========================
+                    MOBILE MENU BUTTON
+                ========================== */}
                 <button
-                  onClick={() =>
-                    setMobileOpen(!mobileOpen)
-                  }
-                  className="md:hidden text-white"
+                  onClick={() => setMobileOpen(!mobileOpen)}
+                  className="
+                    md:hidden
+                    text-white
+                  "
+                  aria-label="Toggle menu"
                 >
-                  {mobileOpen ? (
-                    <X size={30} />
-                  ) : (
-                    <Menu size={30} />
-                  )}
+                  {mobileOpen ? <X size={30} /> : <Menu size={30} />}
                 </button>
               </div>
             </div>
@@ -330,7 +358,9 @@ export default function Navbar({ visible = true }) {
         </div>
       </header>
 
-      {/* MOBILE MENU */}
+      {/* =========================
+          MOBILE MENU
+      ========================== */}
       <div
         className={`
           fixed
@@ -341,21 +371,25 @@ export default function Navbar({ visible = true }) {
           backdrop-blur-3xl
           transition-all
           duration-500
-          ${
-            mobileOpen
-              ? "opacity-100 visible"
-              : "opacity-0 invisible"
-          }
+          ${mobileOpen ? "opacity-100 visible" : "opacity-0 invisible"}
         `}
       >
-        <div className="h-full flex flex-col justify-center items-center gap-10">
+        <div
+          className="
+            h-full
+            flex
+            flex-col
+            justify-center
+            items-center
+            gap-10
+          "
+        >
+          {/* Mobile Navigation Links */}
           {navLinks.map((link) => (
             <NavLink
               key={link.name}
               to={link.path}
-              onClick={() =>
-                setMobileOpen(false)
-              }
+              onClick={() => setMobileOpen(false)}
               className="
                 text-4xl
                 font-black
@@ -369,11 +403,14 @@ export default function Navbar({ visible = true }) {
             </NavLink>
           ))}
 
-          <NavLink
-            to="/book"
-            onClick={() =>
-              setMobileOpen(false)
-            }
+          {/* =========================
+              MOBILE WHATSAPP BUTTON
+          ========================== */}
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setMobileOpen(false)}
             className="
               mt-8
               flex
@@ -385,12 +422,15 @@ export default function Navbar({ visible = true }) {
               bg-white
               text-black
               font-semibold
+              transition-all
+              duration-300
+              hover:scale-105
             "
           >
-            Book A Call
+            <span>WhatsApp Us</span>
 
             <ArrowUpRight size={18} />
-          </NavLink>
+          </a>
         </div>
       </div>
     </>

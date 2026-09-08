@@ -43,7 +43,7 @@ export default function CategoryPage() {
   );
 
   return (
-    <>
+    <div className="admin-page">
       <CategoryHeader
         search={search}
         setSearch={setSearch}
@@ -83,6 +83,6 @@ export default function CategoryPage() {
         category={selectedCategory}
         refresh={fetchCategories}
       />
-    </>
+    </div>
   );
 }

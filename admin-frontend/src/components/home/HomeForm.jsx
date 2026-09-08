@@ -29,47 +29,101 @@ export default function HomeForm({ formData, setFormData }) {
     try {
       const res = await HomeAPI.getBySection(section);
 
+      console.log("FETCH RESPONSE:", res);
+
       const data = res.data.data;
 
-      const existing = data.workCategories || [];
+      // =========================
+      // WORK SECTION
+      // =========================
+      if (section === "work") {
+        const existing = data.workCategories || [];
 
-      const merged = categories.map((cat) => {
-        const item = existing.find(
-          (x) => String(x.category?._id || x.category) === String(cat._id),
-        );
+        const merged = categories.map((cat) => {
+          const item = existing.find(
+            (x) => String(x.category?._id || x.category) === String(cat._id),
+          );
 
-        return (
-          item ?? {
-            category: cat._id,
-            videos: [],
-          }
-        );
-      });
+          return (
+            item || {
+              category: cat._id,
+              videos: [],
+            }
+          );
+        });
+
+        console.log("WORK DATA:", merged);
+
+        setFormData({
+          _id: data._id || null,
+          section: data.section || section,
+          videos: [],
+          workCategories: merged,
+        });
+
+        return;
+      }
+
+      // =========================
+      // NORMAL SECTIONS
+      // =========================
+
+      console.log("NORMAL SECTION DATA:", data.videos);
 
       setFormData({
-        _id: data._id,
-        section: data.section,
-        videos: data.videos || [],
-        workCategories: merged,
+        _id: data._id || null,
+        section: data.section || section,
+
+        videos:
+          data.videos && data.videos.length > 0
+            ? data.videos
+            : [
+                {
+                  url: "",
+                  logoUrl: "",
+                  logoName: "",
+                  category: null,
+                  subCategory: null,
+                  company: null,
+                },
+              ],
+
+        workCategories: [],
       });
     } catch (err) {
+      // =========================
+      // SECTION DOES NOT EXIST
+      // =========================
+
       if (err.response?.status === 404) {
         setFormData({
           _id: null,
           section,
-          videos: [
-  {
-    url: "",
-    category: null,
-    subCategory: null,
-    company: null,
-  },
-],
-          workCategories: categories.map((cat) => ({
-            category: cat._id,
-            videos: [],
-          })),
+
+          videos:
+            section === "work"
+              ? []
+              : [
+                  {
+                    url: "",
+                    logoUrl: "",
+                    logoName: "",
+                    category: null,
+                    subCategory: null,
+                    company: null,
+                  },
+                ],
+
+          workCategories:
+            section === "work"
+              ? categories.map((cat) => ({
+                  category: cat._id,
+                  videos: [],
+                }))
+              : [],
         });
+      } else {
+        console.error("Failed to fetch section:", err);
       }
     }
   };
@@ -103,12 +157,12 @@ export default function HomeForm({ formData, setFormData }) {
         // console.log(JSON.stringify(formData.workCategories, null, 2));
         payload.workCategories = formData.workCategories;
       } else {
-       payload.videos = formData.videos.map((video) => ({
-  ...video,
-  category: video.category || null,
-  subCategory: video.subCategory || null,
-  company: video.company || null,
-}));
+        payload.videos = formData.videos.map((video) => ({
+          ...video,
+          category: video.category || null,
+          subCategory: video.subCategory || null,
+          company: video.company || null,
+        }));
       }
 
       let res;
@@ -140,13 +194,15 @@ export default function HomeForm({ formData, setFormData }) {
       _id: null,
       section: "",
       videos: [
-  {
-    url: "",
-    category: null,
-    subCategory: null,
-    company: null,
-  },
-],
+        {
+          url: "",
+          logoUrl: "",
+          logoName: "",
+          category: null,
+          subCategory: null,
+          company: null,
+        },
+      ],
       workCategories: [],
     });
   };
@@ -196,11 +252,13 @@ export default function HomeForm({ formData, setFormData }) {
       videos: [
         ...formData.videos,
         {
-  url: "",
-  category: null,
-  subCategory: null,
-  company: null,
-}
+          url: "",
+          logoUrl: "",
+          logoName: "",
+          category: null,
+          subCategory: null,
+          company: null,
+        },
       ],
     });
   };

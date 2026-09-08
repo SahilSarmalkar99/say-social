@@ -4,51 +4,10 @@ import useFadeUpCards from "../../hooks/useFadeIn";
 import { useEffect, useState } from "react";
 import HomeAPI from "../../api/home.api";
 
-// const topRow = [
-//   {
-//     id: 1,
-//     video: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367588/ugc8_nqpxfo.mp4",
-//     brand: "Tribalveda",
-//   },
-//   {
-//     id: 2,
-//     video: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367591/ugc3_j88exq.mp4",
-//     brand: "Sugar.fit",
-//   },
-//   {
-//     id: 3,
-//     video: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367583/ugc5_vraq5c.mp4",
-//     brand: "Kyari",
-//   },
-// ];
-
-// const bottomRow = [
-//   {
-//     id: 4,
-//     video: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367610/ugc2_ul13pi.mp4",
-//     brand: "Siddhayu",
-
-//   },
-//   {
-//     id: 5,
-//     video: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367592/ugc9_qckw8l.mp4",
-//     brand: "FreshCon",
-//   },
-//   {
-//     id: 6,
-//     video: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367614/ugc1_g9spbv.mp4",
-//     brand: "Blix",
-//   },
-//   {
-//     id: 7,
-//     video: "https://res.cloudinary.com/dor2qddak/video/upload/v1782972973/autorecractor_cc_1_1_1_np8uvr.mp4",
-//     brand: "Ugaoo",
-//   },
-// ];
-
 export default function ContentSection() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const textReveal = useTextReveal();
   const fadeIn = useFadeUpCards();
 
@@ -84,33 +43,64 @@ export default function ContentSection() {
   return (
     <section ref={fadeIn} className="py-15 md:py-24 px-4 text-white">
       <div className="max-w-7xl mx-auto">
+        {/* Heading */}
         <h2
           ref={textReveal}
-          className="text-center text-2xl md:text-4xl lg:text-[72px]  mb-16 uppercase"
+          className="
+            text-center
+            text-2xl
+            md:text-4xl
+            lg:text-[72px]
+            mb-16
+            uppercase
+          "
         >
           Creating Content That Feels Real,
           <br className="hidden md:block" />
           Relatable And Impactful.
         </h2>
 
-        {/* Top Row */}
-        <div className="fade-card flex justify-center flex-wrap gap-6 mb-6">
+        {/* =========================
+            TOP ROW
+        ========================== */}
+        <div
+          className="
+            fade-card
+            flex
+            justify-center
+            flex-wrap
+            gap-6
+            mb-6
+          "
+        >
           {topRow.map((item, index) => (
             <ContentCard
               key={item.url || index}
               video={item.url}
-              brand={item.company?.name}
+              brandName={item.company?.name}
+              brandLogo={item.logoUrl}
             />
           ))}
         </div>
 
-        {/* Bottom Row */}
-        <div className="fade-card flex justify-center flex-wrap gap-6">
+        {/* =========================
+            BOTTOM ROW
+        ========================== */}
+        <div
+          className="
+            fade-card
+            flex
+            justify-center
+            flex-wrap
+            gap-6
+          "
+        >
           {bottomRow.map((item, index) => (
             <ContentCard
               key={item.url || index}
               video={item.url}
-              brand={item.company?.name}
+              brandName={item.company?.name}
+              brandLogo={item.logoUrl}
             />
           ))}
         </div>
@@ -119,7 +109,25 @@ export default function ContentSection() {
   );
 }
 
-function ContentCard({ video, brand }) {
+/* =========================================
+   CONTENT CARD
+========================================= */
+
+function ContentCard({ video, brandName, brandLogo }) {
+  /*
+    Priority:
+
+    1. Logo if available
+    2. Name if logo is not available
+    3. Nothing if both are unavailable
+  */
+
+  const hasLogo =
+    brandLogo && typeof brandLogo === "string" && brandLogo.trim() !== "";
+
+  const hasName =
+    brandName && typeof brandName === "string" && brandName.trim() !== "";
+
   return (
     <div
       className="
@@ -128,6 +136,7 @@ function ContentCard({ video, brand }) {
         overflow-hidden
         rounded-[28px]
         group
+
         w-[220px]
         h-[330px]
 
@@ -140,13 +149,14 @@ function ContentCard({ video, brand }) {
         cursor-pointer
       "
     >
-      {/* Video */}
+      {/* =========================
+          VIDEO
+      ========================== */}
       <video
         src={video}
         autoPlay
         muted
         loop
-        loading="lazy"
         playsInline
         preload="auto"
         className="
@@ -160,10 +170,13 @@ function ContentCard({ video, brand }) {
         "
       />
 
-      {/* Gradient */}
+      {/* =========================
+          GRADIENT
+      ========================== */}
       <div
         className="
-          absolute inset-0
+          absolute
+          inset-0
           bg-gradient-to-t
           from-black/50
           via-black/10
@@ -171,67 +184,107 @@ function ContentCard({ video, brand }) {
         "
       />
 
-      {/* Glass Label */}
-      <div
-        className="
-          absolute
-          left-4
-          right-4
-          bottom-4
-
-          flex
-          items-center
-          justify-between
-
-          px-5
-          py-4
-
-          rounded-2xl
-          border border-white/10
-
-          bg-[#4530508C]
-          backdrop-blur-xl
-
-          opacity-0
-          translate-y-6
-
-          transition-all
-          duration-500
-          ease-out
-
-          group-hover:opacity-100
-          group-hover:translate-y-0
-        "
-      >
-        <span className="font-medium text-sm md:text-base text-white">
-          {brand}
-        </span>
-
+      {/* =========================
+          GLASS LABEL
+      ========================== */}
+      {(hasLogo || hasName) && (
         <div
           className="
-            h-9
-            w-9
-            rounded-full
-
-            bg-white
-            text-black
+            absolute
+            left-4
+            right-4
+            bottom-4
 
             flex
             items-center
-            justify-center
+            justify-between
 
-            scale-75
+            px-5
+            py-4
+
+            rounded-2xl
+            border
+            border-white/10
+
+            bg-[#4530508C]
+            backdrop-blur-xl
+
+            opacity-0
+            translate-y-6
 
             transition-all
-            duration-300
+            duration-500
+            ease-out
 
-            group-hover:scale-100
-            group-hover:rotate-45
+            group-hover:opacity-100
+            group-hover:translate-y-0
           "
         >
-          <ArrowUpRight size={18} />
+          {/* =========================
+              BRAND
+          ========================== */}
+          <div className="flex items-center justify-center min-w-0 w-full">
+            {hasLogo ? (
+              <img
+                src={brandLogo}
+                alt={brandName || "Brand logo"}
+                className="
+        max-w-[170px]
+        max-h-[50px]
+        w-auto
+        h-auto
+        object-contain
+        mx-auto
+      "
+              />
+            ) : hasName ? (
+              <span
+                className="
+        font-semibold
+        text-base
+        md:text-lg
+        lg:text-xl
+        text-white
+        text-center
+        truncate
+      "
+              >
+                {brandName}
+              </span>
+            ) : null}
+          </div>
+
+          {/* =========================
+              ARROW
+          ========================== */}
+          <div
+            className="
+              h-9
+              w-9
+              rounded-full
+
+              bg-white
+              text-black
+
+              flex
+              items-center
+              justify-center
+
+              scale-75
+
+              transition-all
+              duration-300
+
+              group-hover:scale-100
+              group-hover:rotate-45
+
+              shrink-0
+            "
+          >
+            <ArrowUpRight size={18} />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

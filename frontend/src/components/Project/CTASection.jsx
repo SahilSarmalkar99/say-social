@@ -1,18 +1,18 @@
-import {
-  CalendarDays,
-  Award,
-} from "lucide-react";
+import { CalendarDays, Award } from "lucide-react";
 
 export default function CTASection() {
+  // Contact number
+  const phoneNumber = "7021374839";
+  const phoneLink = `tel:+91${phoneNumber}`;
+
   return (
-    <section
-      className="relative overflow-hidden py-20 md:py-28"
-    
-    >
+    <section className="relative overflow-hidden py-20 md:py-28">
       <div className="max-w-7xl mx-auto px-5">
-        {/* CTA CARD */}
+        {/* =========================
+            CTA CARD
+        ========================== */}
         <div className="relative mx-auto max-w-6xl">
-          {/* angled corner */}
+          {/* Card */}
           <div
             className="
               bg-[#f5f5f7]
@@ -22,10 +22,16 @@ export default function CTASection() {
               overflow-hidden
             "
           >
-            
-            
-
-            <div className="px-6 md:px-12 py-20 md:py-24 text-center">
+            <div
+              className="
+                px-6
+                md:px-12
+                py-20
+                md:py-24
+                text-center
+              "
+            >
+              {/* Heading */}
               <h2
                 className="
                   text-[#060527]
@@ -44,6 +50,7 @@ export default function CTASection() {
                 your project with us?
               </h2>
 
+              {/* Description */}
               <p
                 className="
                   mt-8
@@ -59,7 +66,11 @@ export default function CTASection() {
                 only looks great but drives real growth for your product.
               </p>
 
-              <button
+              {/* =========================
+                  BOOK A CALL BUTTON
+              ========================== */}
+              <a
+                href={phoneLink}
                 className="
                   mt-10
                   inline-flex
@@ -77,6 +88,8 @@ export default function CTASection() {
                   py-2
                   transition-all
                   duration-300
+                  hover:scale-105
+                  cursor-pointer
                 "
               >
                 <span>Book a Call</span>
@@ -92,17 +105,16 @@ export default function CTASection() {
                     justify-center
                   "
                 >
-                  <CalendarDays
-                    size={20}
-                    className="text-[#4727d6]"
-                  />
+                  <CalendarDays size={20} className="text-[#4727d6]" />
                 </span>
-              </button>
+              </a>
             </div>
           </div>
         </div>
 
-        {/* LOGOS */}
+        {/* =========================
+            LOGOS
+        ========================== */}
         <div
           className="
             mt-14
@@ -132,21 +144,34 @@ export default function CTASection() {
             },
           ].map((item, i) => (
             <div key={i}>
+              {/* Award Icon */}
               <div className="flex justify-center mb-3">
-                <Award
-                  size={32}
-                  className="text-white/90"
-                />
+                <Award size={32} className="text-white/90" />
               </div>
 
-              <h3 className="text-white text-3xl font-medium">
+              {/* Logo Name */}
+              <h3
+                className="
+                  text-white
+                  text-3xl
+                  font-medium
+                "
+              >
                 {item.name}
               </h3>
 
-              <div className="text-yellow-400 text-sm mt-2">
+              {/* Stars */}
+              <div
+                className="
+                  text-yellow-400
+                  text-sm
+                  mt-2
+                "
+              >
                 ★★★★★
               </div>
 
+              {/* Description */}
               <p
                 className="
                   mt-3

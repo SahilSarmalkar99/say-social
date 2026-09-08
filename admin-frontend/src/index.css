@@ -1,1 +1,271 @@
 @import "tailwindcss";
+
+/* Brand typography — place the matching font files in src/assets/font/ */
+@font-face {
+  font-family: "Barabara";
+  src: url("./assets/font/font1.woff") format("woff");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "font2";
+  src: url("./assets/font/font2.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "font3";
+  src: url("./assets/font/font3.otf") format("opentype");
+  font-display: swap;
+}
+
+:root {
+  --body-font: "font3", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --heading-font: "font2", "Barabara", Impact, sans-serif;
+  --brand-purple: #16061f;
+  --brand-purple-soft: #8b3fb1;
+  --surface: rgba(14, 10, 19, 0.72);
+  --surface-strong: rgba(20, 12, 27, 0.92);
+  --border: rgba(255, 255, 255, 0.11);
+  --muted: rgba(255, 255, 255, 0.58);
+  font-family: var(--body-font);
+  color: #fff;
+  background: linear-gradient(180deg, #000000 0%, #16061f 50%, #000000 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; min-height: 100%; }
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  color: #fff;
+  background: linear-gradient(180deg, #000000 0%, #16061f 50%, #000000 100%);
+  background-attachment: fixed;
+}
+
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "font2", "Barabara", Impact, sans-serif;
+  letter-spacing: 2px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+p, span, li, a {
+  font-family: var(--body-font);
+  font-weight: 400;
+}
+
+textarea {
+  font-family: "font2", "Barabara", Impact, sans-serif;
+}
+
+textarea::-webkit-scrollbar { display: none; }
+
+::selection { background: rgba(185, 92, 235, .32); color: #fff; }
+
+/* Shared admin shell */
+.admin-page {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  color: #fff;
+}
+
+.admin-page > h1,
+.admin-page h1,
+.admin-page h2,
+.admin-page h3,
+.admin-page h4 {
+  color: #fff;
+}
+
+/* Convert the existing white Tailwind surfaces into the new dark/glass system. */
+.admin-page .bg-white,
+.admin-page [class*="bg-white"] {
+  background: var(--surface) !important;
+  color: #fff !important;
+}
+
+.admin-page .bg-slate-50,
+.admin-page [class*="bg-slate-50"] {
+  background: rgba(255,255,255,.045) !important;
+}
+
+.admin-page .text-slate-900,
+.admin-page .text-slate-800,
+.admin-page .text-slate-700,
+.admin-page .text-slate-600,
+.admin-page .text-slate-500,
+.admin-page .text-gray-900,
+.admin-page .text-gray-800,
+.admin-page .text-gray-700,
+.admin-page .text-gray-600 {
+  color: rgba(255,255,255,.82) !important;
+}
+
+.admin-page .text-slate-400,
+.admin-page .text-gray-500,
+.admin-page .text-gray-400 {
+  color: rgba(255,255,255,.5) !important;
+}
+
+.admin-page [class*="border-slate"],
+.admin-page [class*="border-gray"],
+.admin-page [class*="border-zinc"] {
+  border-color: var(--border) !important;
+}
+
+.admin-card,
+.admin-page [class*="rounded-3xl"][class*="bg-white"],
+.admin-page [class*="rounded-2xl"][class*="bg-white"] {
+  border: 1px solid var(--border) !important;
+  border-radius: 20px;
+  background: var(--surface) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  backdrop-filter: blur(18px);
+}
+
+/* Inputs, selects and textareas */
+.admin-page input:not([type="checkbox"]):not([type="radio"]),
+.admin-page select,
+.admin-page textarea {
+  min-height: 46px;
+  border: 1px solid rgba(255,255,255,.13) !important;
+  border-radius: 12px !important;
+  background: rgba(0,0,0,.38) !important;
+  color: #fff !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+  transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+
+.admin-page input::placeholder,
+.admin-page textarea::placeholder {
+  color: rgba(255,255,255,.34) !important;
+}
+
+.admin-page input:hover,
+.admin-page select:hover,
+.admin-page textarea:hover {
+  border-color: rgba(190,95,239,.38) !important;
+}
+
+.admin-page input:focus,
+.admin-page select:focus,
+.admin-page textarea:focus {
+  border-color: rgba(190,95,239,.78) !important;
+  box-shadow: 0 0 0 4px rgba(139,63,177,.16) !important;
+  outline: none !important;
+}
+
+.admin-page option { background: #16061f; color: #fff; }
+
+.admin-page label {
+  color: rgba(255,255,255,.82) !important;
+  font-family: var(--body-font);
+  font-weight: 600;
+  font-size: .875rem;
+}
+
+/* Tables */
+.admin-page table { border-collapse: separate; border-spacing: 0; }
+.admin-page thead th {
+  background: rgba(255,255,255,.035) !important;
+  color: rgba(255,255,255,.52) !important;
+  font-family: var(--body-font);
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.admin-page tbody tr {
+  border-color: rgba(255,255,255,.07) !important;
+  transition: background-color .16s ease;
+}
+.admin-page tbody tr:hover { background: rgba(255,255,255,.035) !important; }
+.admin-page tbody td { color: rgba(255,255,255,.78) !important; }
+
+/* Buttons */
+.admin-page button[class*="bg-black"] {
+  background: linear-gradient(135deg, #fff, #d9d0df) !important;
+  color: #120817 !important;
+  border: 1px solid rgba(255,255,255,.65) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+}
+.admin-page button[class*="bg-black"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(0,0,0,.35);
+  opacity: .94;
+}
+
+.admin-page button[class*="border"] {
+  border-color: rgba(255,255,255,.14);
+  color: rgba(255,255,255,.82);
+  transition: background-color .16s ease, border-color .16s ease, transform .16s ease;
+}
+.admin-page button[class*="border"]:hover {
+  background: rgba(255,255,255,.07) !important;
+  border-color: rgba(255,255,255,.25) !important;
+}
+
+.admin-page button[class*="bg-red"] { box-shadow: 0 5px 18px rgba(239,68,68,.16); }
+
+.admin-page button[class*="p-2"] {
+  min-width: 36px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,.72);
+}
+.admin-page button[class*="p-2"]:hover { background: rgba(255,255,255,.08) !important; }
+
+/* Modal polish */
+.admin-page ~ div[class*="fixed"],
+body > div[class*="fixed"] { backdrop-filter: blur(7px); }
+
+.admin-page [class*="fixed"][class*="inset-0"][class*="bg-black/40"] {
+  background: rgba(0,0,0,.7) !important;
+  backdrop-filter: blur(8px);
+  padding: 1rem;
+}
+
+.admin-page [class*="fixed"][class*="inset-0"][class*="bg-black/40"] > .bg-white {
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 20px !important;
+  box-shadow: 0 24px 90px rgba(0,0,0,.6);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+/* Links */
+.admin-page a { color: inherit; transition: color .16s ease, opacity .16s ease; }
+.admin-page a:hover { color: #d79cf5; }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.3); }
+
+@media (max-width: 767px) {
+  .admin-page { max-width: none; }
+  .admin-page h1 { font-size: 1.75rem; }
+}
+
+/* Accessibility */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgba(190,95,239,.7);
+  outline-offset: 2px;
+}

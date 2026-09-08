@@ -54,7 +54,7 @@ export default function ProjectsPage() {
   }, [projects, search]);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-6">
+    <div className="admin-page space-y-8">
       {/* Header */}
 
       <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">

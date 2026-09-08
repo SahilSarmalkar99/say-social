@@ -16,17 +16,17 @@ export default function CategoryTable({
 
   if (categories.length === 0) {
     return (
-      <div className="rounded-3xl border bg-white py-20 text-center text-gray-500">
+      <div className="rounded-3xl border  py-20 text-center text-gray-500">
         No Categories Found
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-3xl bg-white shadow">
+    <div className="overflow-hidden rounded-3xl shadow">
       <div className="overflow-x-auto">
         <table className="min-w-[650px] w-full">
-          <thead className="bg-gray-100">
+          <thead className="">
             <tr>
               <th className="px-4 md:px-6 py-4 text-left font-semibold">
                 Name

@@ -175,7 +175,7 @@ export default function TeamPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-8 space-y-8">
+    <div className="admin-page space-y-8">
       <h1 className="text-3xl font-bold">Team Management</h1>
 
       {/* VIDEO */}

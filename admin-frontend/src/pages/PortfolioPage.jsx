@@ -93,7 +93,7 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-4 md:p-6 lg:p-8">
+    <div className="admin-page space-y-8">
       {/* Header */}
 
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">

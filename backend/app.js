@@ -11,6 +11,13 @@ import companyRoutes from "./routes/company.routes.js";
 import teamRoutes from "./routes/team.routes.js";
 import projectRoutes from "./routes/project.route.js";
 import portfolioRoutes from "./routes/portfolio.routes.js";
+import videoRoutes from './routes/videoRoutes.js';
+import adminVideoRoutes from './routes/adminVideoRoutes.js';
+import logoRoutes from "./routes/logoRoutes.js";
+import testimonialRoutes from"./routes/testimonialRoutes.js";
+import jobRoleRoutes from "./routes/jobRoleRoutes.js";
+import careerSettingRoutes from "./routes/careerSettingRoutes.js";
+import jobApplicationRoutes from "./routes/jobApplicationRoutes.js";
 
 const app = express();
 
@@ -37,4 +44,12 @@ app.use("/api/companies", companyRoutes);
 app.use("/api/team", teamRoutes);
 app.use("/api/project", projectRoutes);
 app.use("/api/portfolio", portfolioRoutes);
+app.use('/api/videos', videoRoutes);
+app.use('/api/admin/videos', adminVideoRoutes);
+app.use("/api/logos", logoRoutes);
+app.use("/api/testimonials", testimonialRoutes);
+app.use("/api/jobs",jobRoleRoutes);
+app.use("/api/career-settings",careerSettingRoutes);
+app.use("/api/applications",jobApplicationRoutes);
+
 export default app;

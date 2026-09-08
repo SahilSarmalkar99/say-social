@@ -7,6 +7,16 @@ const videoSchema = new mongoose.Schema(
       required: true,
     },
 
+    logoUrl: {
+      type: String,
+      default: "",
+    },
+
+    logoName: {
+      type: String,
+      default: "",
+    },
+
     subCategory: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubCategory",
@@ -19,9 +29,8 @@ const videoSchema = new mongoose.Schema(
       default: null,
     },
   },
-  { _id: false }
+  { _id: false },
 );
-
 const workCategorySchema = new mongoose.Schema(
   {
     category: {
@@ -35,7 +44,7 @@ const workCategorySchema = new mongoose.Schema(
       default: [],
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const homeSchema = new mongoose.Schema(
@@ -44,12 +53,7 @@ const homeSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      enum: [
-        "work",
-        "content-creating",
-        "design-identities",
-        "featured-work",
-      ],
+      enum: ["work", "content-creating", "design-identities", "featured-work"],
     },
 
     // Used by all sections except "work"
@@ -66,7 +70,7 @@ const homeSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export default mongoose.model("Home", homeSchema);

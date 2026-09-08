@@ -1,8 +1,25 @@
-const VideoIntro = ({
-  sectionRef,
-  videoRef,
-  overlayRef,
-}) => {
+import { useEffect, useState } from "react";
+import { getMainVideo } from "../../api/videoApi";
+
+const VideoIntro = ({ sectionRef, videoRef, overlayRef }) => {
+  const [mainVideo, setMainVideo] = useState(null);
+
+  useEffect(() => {
+    const fetchMainVideo = async () => {
+      try {
+        const data = await getMainVideo();
+
+        console.log("MAIN VIDEO:", data);
+
+        setMainVideo(data.video);
+      } catch (error) {
+        console.error("Failed to fetch main video:", error);
+      }
+    };
+
+    fetchMainVideo();
+  }, []);
+
   return (
     <section
       ref={sectionRef}
@@ -10,7 +27,6 @@ const VideoIntro = ({
         relative
         h-[100vh]
         md:h-[120vh]
-
       "
     >
       <div
@@ -33,20 +49,16 @@ const VideoIntro = ({
           className="
             absolute
             inset-0
-
             w-full
             h-full
-
             object-cover
             object-center
-
             will-change-transform
           "
         >
-          <source
-            src="https://media.istockphoto.com/id/1942771288/video/split-multi-screen-collage-in-data-center-diverse-group-of-it-specialists-technicians.mp4?p=1&s=mp4-640x640-is&k=20&c=tff8dSJqN7cTGV6bHgpGc64qTAUZXPT5ekHuZUXgfIg="
-            type="video/mp4"
-          />
+          {mainVideo?.videoUrl && (
+            <source src={mainVideo.videoUrl} type="video/mp4" />
+          )}
         </video>
 
         {/* DARK OVERLAY */}
@@ -59,8 +71,6 @@ const VideoIntro = ({
             opacity-0
           "
         />
-
-       
       </div>
     </section>
   );

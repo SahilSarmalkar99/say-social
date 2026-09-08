@@ -1,105 +1,72 @@
 import {
-  LayoutDashboard,
-  FolderTree,
-  Building2,
-  Layers3,
-  GroupIcon,
-  ProjectorIcon,
-  Video,
-  X,
+  LayoutDashboard, FolderTree, Building2, Layers3, Users, FolderKanban,
+  Video, ShieldCheck, MessageSquareQuote, X, User2Icon, Sparkles
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const menus = [
-  {
-    title: "Dashboard",
-    icon: LayoutDashboard,
-    path: "/",
-  },
-  {
-    title: "Categories",
-    icon: FolderTree,
-    path: "/categories",
-  },
-  {
-    title: "Sub Categories",
-    icon: Layers3,
-    path: "/sub-categories",
-  },
-  {
-    title: "Companies",
-    icon: Building2,
-    path: "/companies",
-  },
-  {
-    title: "Team",
-    icon: GroupIcon,
-    path: "/team",
-  },
-  {
-    title: "Project",
-    icon: ProjectorIcon,
-    path: "/project",
-  },
-  {
-    title: "Work",
-    icon: Video,
-    path: "/work",
-  },
+  { title: "Dashboard", icon: LayoutDashboard, path: "/" },
+  { title: "Main Video", icon: Video, path: "/video" },
+  { title: "Categories", icon: FolderTree, path: "/categories" },
+  { title: "Sub Categories", icon: Layers3, path: "/sub-categories" },
+  { title: "Companies", icon: Building2, path: "/companies" },
+  { title: "Team", icon: Users, path: "/team" },
+  { title: "Projects", icon: FolderKanban, path: "/project" },
+  { title: "Work", icon: Video, path: "/work" },
+  { title: "Trusted By", icon: ShieldCheck, path: "/trustedBy" },
+  { title: "Testimonials", icon: MessageSquareQuote, path: "/testimonials" },
+  { title: "Job Roles", icon: User2Icon, path: "/job-roles" },
 ];
 
 export default function Sidebar({ open, setOpen }) {
   return (
     <>
-      {/* Overlay */}
-      <div
-        onClick={() => setOpen(false)}
-        className={`fixed inset-0 bg-black/40 z-30 lg:hidden transition-opacity
-        ${open ? "opacity-100 visible" : "opacity-0 invisible"}`}
-      />
+      <div onClick={() => setOpen(false)} className={`fixed inset-0 z-30 bg-slate-950/40 backdrop-blur-sm lg:hidden transition-opacity ${open ? "visible opacity-100" : "invisible pointer-events-none opacity-0"}`} />
 
-      <aside
-  className={`fixed top-0 left-0 h-screen w-72 bg-white border-r z-40
-  transform transition-transform duration-300
-  ${open ? "translate-x-0" : "-translate-x-full"}
-  lg:translate-x-0`}
->
-        <div className="h-20 flex items-center justify-between px-8 border-b">
-          <h1 className="text-2xl font-bold">SaySocial CMS</h1>
-
-          <button
-            onClick={() => setOpen(false)}
-            className="lg:hidden"
-          >
-            <X />
+      <aside className={`fixed left-0 top-0 z-40 flex h-screen w-72 flex-col border-r border-white/10 bg-black/85 text-white shadow-2xl shadow-black/40 transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
+        <div className="flex h-[88px] min-h-[88px] items-center justify-between border-b border-white/8 px-6">
+          <div className="flex items-center gap-3">
+            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-white text-slate-900 shadow-lg">
+              <Sparkles size={20} />
+            </div>
+            <div>
+              <h1 className="text-[15px] font-bold tracking-[2px] uppercase">SaySocial</h1>
+              <p className="mt-0.5 text-[11px] font-medium text-white/40">Content Management</p>
+            </div>
+          </div>
+          <button onClick={() => setOpen(false)} className="rounded-xl p-2 text-slate-400 hover:bg-white/8 hover:text-white lg:hidden" aria-label="Close navigation">
+            <X size={20} />
           </button>
         </div>
 
-        <nav className="p-5">
-          {menus.map((menu) => {
-            const Icon = menu.icon;
-
-            return (
-              <NavLink
-                key={menu.path}
-                to={menu.path}
-                end
-                onClick={() => setOpen(false)}
-                className={({ isActive }) =>
-                  `flex items-center gap-4 px-5 py-4 rounded-xl mb-3 transition
-                  ${
-                    isActive
-                      ? "bg-black text-white"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`
-                }
-              >
-                <Icon size={22} />
-                {menu.title}
-              </NavLink>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto px-4 py-6">
+          <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">Workspace</p>
+          <div className="space-y-1">
+            {menus.map((menu) => {
+              const Icon = menu.icon;
+              return (
+                <NavLink
+                  key={menu.path}
+                  to={menu.path}
+                  end={menu.path === "/" || menu.path === "/project"}
+                  onClick={() => setOpen(false)}
+                  className={({ isActive }) => `group flex items-center gap-3 rounded-xl px-3.5 py-3 text-[13px] font-medium transition-all ${isActive ? "bg-white text-[#16061f] shadow-lg shadow-black/30" : "text-white/50 hover:bg-white/7 hover:text-white"}`}
+                >
+                  <Icon size={18} strokeWidth={1.9} className="shrink-0" />
+                  <span className="truncate">{menu.title}</span>
+                </NavLink>
+              );
+            })}
+          </div>
         </nav>
+
+        <div className="border-t border-white/8 p-4">
+          <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3.5">
+            <p className="text-[10px] font-bold uppercase tracking-[.14em] text-slate-500">Admin Panel</p>
+            <p className="mt-1 text-sm font-semibold text-slate-200">SaySocial CMS</p>
+            <p className="mt-1 text-[11px] text-slate-500">Manage your website content</p>
+          </div>
+        </div>
       </aside>
     </>
   );

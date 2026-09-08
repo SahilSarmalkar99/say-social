@@ -4,9 +4,9 @@ export default function SubCategoryTable({ data, loading, onEdit, onDelete }) {
   if (loading) return <div className="py-16 text-center">Loading...</div>;
 
   return (
-    <div className="overflow-x-auto rounded-3xl bg-white shadow">
+    <div className="overflow-x-auto rounded-3xl  shadow">
       <table className="min-w-[650px] w-full">
-        <thead className="bg-gray-100">
+        <thead className="">
           <tr>
             <th className="text-left p-5">Category</th>
 
