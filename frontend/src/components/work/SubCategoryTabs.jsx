@@ -45,26 +45,64 @@ export default function SubCategoryTabs({
   if (!category || category._id === "all") return null;
 
   return (
-    <div className="mt-16">
-      <div className="flex justify-center">
-        <div className="flex flex-wrap gap-10">
-          {subs.map((sub) => (
-            <button
-              key={sub._id}
-              onClick={() => onChange(sub)}
-              className={`relative transition ${
-                value?._id === sub._id
-                  ? "text-white"
-                  : "text-white/50"
-              }`}
-            >
-              {sub.name}
+    <div className="mt-8 sm:mt-10 md:mt-12 lg:mt-16 w-full">
+      <div className="w-full overflow-x-auto scrollbar-hide px-4 sm:px-6 md:px-8">
+        <div
+          className="
+            flex
+            w-max
+            min-w-full
+            justify-start
+            sm:justify-center
+            gap-6
+            sm:gap-8
+            md:gap-10
+            lg:gap-12
+            pb-3
+          "
+        >
+          {subs.map((sub) => {
+            const isActive = value?._id === sub._id;
 
-              {value?._id === sub._id && (
-                <span className="absolute left-0 -bottom-2 h-px w-full bg-white" />
-              )}
-            </button>
-          ))}
+            return (
+              <button
+                key={sub._id}
+                onClick={() => onChange(sub)}
+                className={`
+                  relative
+                  shrink-0
+                  whitespace-nowrap
+                  text-sm
+                  sm:text-base
+                  md:text-[15px]
+                  lg:text-base
+                  transition-all
+                  duration-300
+                  focus:outline-none
+                  ${
+                    isActive
+                      ? "text-white"
+                      : "text-white/50 hover:text-white/80"
+                  }
+                `}
+              >
+                {sub.name}
+
+                {isActive && (
+                  <span
+                    className="
+                      absolute
+                      left-0
+                      -bottom-2
+                      h-px
+                      w-full
+                      bg-white
+                    "
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

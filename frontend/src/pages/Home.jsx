@@ -13,7 +13,6 @@ import Testimonial from "../components/home/Testimonail";
 import VideoCoverflow from "../components/home/VideoCoverflow";
 
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import DashedSeparator from "../components/DashedSeparator";
 
 export default function Home() {
@@ -77,7 +76,6 @@ export default function Home() {
       <VideoCoverflow />
       <DashedSeparator />
       <Testimonial />
-      <Footer />
     </>
   );
 }

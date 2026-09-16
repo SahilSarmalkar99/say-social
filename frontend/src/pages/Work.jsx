@@ -10,7 +10,7 @@ const Work = () => {
       <Navbar visible={true}/>
         <WorkHero />
         <WorkShowcase />
-        <CTA />
+        {/* <CTA /> */}
     </div>
   )
 }

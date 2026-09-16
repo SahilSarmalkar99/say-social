@@ -11,13 +11,14 @@ import ScrollToTop from "./components/ScrollToTop";
 import useLenis from "./hooks/useLenis";
 import ProjectDetails from "./components/Project/ProjectDetails";
 import OpenRoles from "./pages/Careers";
+import Footer from "./components/Footer";
 
 function App() {
   useLenis();
   return (
     <BrowserRouter>
     <ScrollToTop />
-
+    
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/work" element={<Work />} />
@@ -27,6 +28,8 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/careers" element={<OpenRoles />} />
         </Routes>
+
+        <Footer />
 
     </BrowserRouter>
   );

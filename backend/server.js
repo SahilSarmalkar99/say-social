@@ -23,4 +23,34 @@ const startServer = async () => {
   }
 };
 
+import { sendEmail } from "./services/emailService.js";
+
+app.get("/api/test-email", async (req, res) => {
+  try {
+    const info = await sendEmail({
+      to: "business@saysocial.in",
+      subject: "SAY Social Email Test",
+      text: "This is a test email from the SAY Social backend.",
+      html: `
+        <h2>SAY Social Email Test</h2>
+        <p>If you received this email, Gmail + Nodemailer is working correctly.</p>
+      `,
+    });
+
+    console.log("TEST EMAIL SENT:", info.messageId);
+
+    res.json({
+      success: true,
+      message: "Test email sent successfully",
+      messageId: info.messageId,
+    });
+  } catch (error) {
+    console.error("TEST EMAIL ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 startServer();

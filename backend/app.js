@@ -18,6 +18,7 @@ import testimonialRoutes from"./routes/testimonialRoutes.js";
 import jobRoleRoutes from "./routes/jobRoleRoutes.js";
 import careerSettingRoutes from "./routes/careerSettingRoutes.js";
 import jobApplicationRoutes from "./routes/jobApplicationRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
 
 const app = express();
 
@@ -51,5 +52,6 @@ app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/jobs",jobRoleRoutes);
 app.use("/api/career-settings",careerSettingRoutes);
 app.use("/api/applications",jobApplicationRoutes);
+app.use("/api/contact", contactRoutes);
 
 export default app;

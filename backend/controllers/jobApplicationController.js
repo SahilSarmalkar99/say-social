@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import nodemailer from "nodemailer";
+import { sendEmail } from "../services/emailService.js";
 import JobRole from "../models/JobRole.js";
 import JobApplication from "../models/JobApplication.js";
 import CareerSetting from "../models/CareerSetting.js";
@@ -24,16 +24,28 @@ export async function submitApplication(req,res){
     });
     const setting=await CareerSetting.findOne().sort({createdAt:-1});
     const recipient=setting?.applicationEmail||process.env.CAREERS_EMAIL;
-    if(recipient&&process.env.MAIL_USER&&process.env.MAIL_PASS){
-      const transporter=nodemailer.createTransport({service:"gmail",auth:{user:process.env.MAIL_USER,pass:process.env.MAIL_PASS}});
-      await transporter.sendMail({
-        from:`"Careers" <${process.env.MAIL_USER}>`,to:recipient,replyTo:email||process.env.MAIL_USER,
+    let emailDelivered = false;
+    if(recipient && process.env.MAIL_USER && process.env.MAIL_PASS){
+      await sendEmail({
+        to:recipient,
+        replyTo:email||process.env.MAIL_USER,
         subject:`New Application: ${job.title} — ${name}`,
         text:`New job application\n\nRole: ${job.title}\nName: ${name}\nPhone: ${phone}\nEmail: ${email||"Not provided"}\nWork links: ${links.length?links.join(", "):"None"}`,
         attachments:[{filename:req.file.originalname,path:path.resolve(req.file.path)}]
       });
+
+      // Send a confirmation to the applicant when an email address was provided.
+      if (email) {
+        await sendEmail({
+          to: email,
+          subject: `Application received — ${job.title}`,
+          text:`Hi ${name},\n\nThanks for applying for ${job.title} at Say Social. We received your application and will review it.\n\nRegards,\nSay Social`,
+          html:`<p>Hi ${escapeHtml(name)},</p><p>Thanks for applying for <strong>${escapeHtml(job.title)}</strong> at Say Social.</p><p>We received your application and will review it.</p><p>Regards,<br/>Say Social</p>`
+        });
+      }
+      emailDelivered = true;
     }
-    res.status(201).json({success:true,message:recipient&&process.env.MAIL_USER&&process.env.MAIL_PASS?"Application submitted successfully":"Application saved; email delivery is not configured.",data:application});
+    res.status(201).json({success:true,message:emailDelivered?"Application submitted successfully. A confirmation email has been sent.":"Application saved; email delivery is not configured.",data:application});
   }catch(e){
     if(req.file?.path&&fs.existsSync(req.file.path))fs.unlinkSync(req.file.path);
     res.status(500).json({success:false,message:e.message});
@@ -49,4 +61,12 @@ export async function updateApplicationStatus(req,res){
     if(!app)return res.status(404).json({success:false,message:"Application not found"});
     res.json({success:true,data:app});
   }catch(e){res.status(500).json({success:false,message:e.message});}
+}
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }

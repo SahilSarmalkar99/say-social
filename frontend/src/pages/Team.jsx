@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import TeamHero from "../components/team/TeamHero";
 import AboutStory from "../components/team/AboutStory";
 import TeamSection from "../components/team/TeamMember";
-import CommonFooter from "../components/CommonFooter";
 import Navbar from "../components/Navbar";
 
 import TeamAPI from "../api/team.api";
@@ -71,7 +70,6 @@ const Team = () => {
 
       <TeamSection team={team} />
 
-      <CommonFooter />
     </div>
   );
 };

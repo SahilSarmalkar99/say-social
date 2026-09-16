@@ -125,7 +125,7 @@ export default function Footer() {
               </p>
 
               <a
-                href="mailto:hello@agency.com"
+                href="/contact"
                 className="
                   text-white
                   text-xl
@@ -137,7 +137,7 @@ export default function Footer() {
                   transition
                 "
               >
-                hello@agency.com
+                hello@saysocial.in
                 <ArrowUpRight size={18} />
               </a>
             </div>
@@ -153,10 +153,10 @@ export default function Footer() {
                 text-lg
               "
             >
-              <a href="#">How It Works</a>
-              <a href="#">Benefits</a>
-              <a href="#">Features</a>
-              <a href="#">Team</a>
+              <a href="/work">Works</a>
+              <a href="/team">Team</a>
+              <a href="/project">Projects</a>
+              <a href="/careers">Careers</a>
             </nav>
           </div>
         </div>
@@ -216,7 +216,7 @@ export default function Footer() {
                 xl:text-[12rem]
               "
             >
-              datawizz
+              SaySocial
             </h1>
           </div>
 
