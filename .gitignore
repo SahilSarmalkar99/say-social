@@ -75,3 +75,15 @@ temp/
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# User Uploads
+# =========================
+backend/uploads/

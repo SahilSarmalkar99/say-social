@@ -1,8 +1,8 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "dotenv/config";
 
 import app from "./app.js";
 import connectDB from "./config/db.js";
+import cloudinary from "./config/cloudinary.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -50,6 +50,25 @@ app.get("/api/test-email", async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message,
+    });
+  }
+});
+
+app.get("/api/test-cloudinary", async (req, res) => {
+  try {
+    const result = await cloudinary.api.ping();
+
+    res.json({
+      success: true,
+      result,
+    });
+  } catch (error) {
+    console.error("CLOUDINARY TEST ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      http_code: error.http_code,
     });
   }
 });
