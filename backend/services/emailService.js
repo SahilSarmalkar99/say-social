@@ -20,7 +20,7 @@ export function createTransporter() {
   return nodemailer.createTransport({
     host: process.env.MAIL_HOST,
     port: Number(process.env.MAIL_PORT),
-    secure: process.env.MAIL_SECURE === "true",
+    secure: false,
 
     auth: {
       user: process.env.MAIL_USER,
