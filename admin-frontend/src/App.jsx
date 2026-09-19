@@ -14,6 +14,8 @@ import AdminVideos from "./pages/AdminVideos";
 import AdminLogos from "./pages/AdminLogos";
 import AdminTestimonials from "./pages/AdminTestimonials";
 import AdminCareers from "./pages/AdminCareers";
+import AdminHeroVideos from "./pages/AdminHeroVideos";
+import AdminSiteLogo from "./pages/AdminSiteLogo";
 
 export default function App() {
   return (
@@ -36,6 +38,8 @@ export default function App() {
         <Route path="/trustedBy" element={<AdminLogos />} />
         <Route path="/testimonials" element={<AdminTestimonials />} />
         <Route path="/job-roles" element={<AdminCareers />} />
+        <Route path="/hero-video" element={<AdminHeroVideos />} />
+        <Route path="/logo" element={<AdminSiteLogo />} />
       </Route>
     </Routes>
   );

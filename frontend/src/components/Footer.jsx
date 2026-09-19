@@ -1,17 +1,32 @@
+import React, { useEffect, useState } from "react";
 import {
   ArrowUpRight,
   Sparkles,
 } from "lucide-react";
+import {getSiteSettings} from "../api/site-settings";
 
 export default function Footer() {
-  
+  const [logoUrl, setLogoUrl] = useState("");
+
+  useEffect(() => {
+    const fetchSiteSettings = async () => {
+      try {
+        const response = await getSiteSettings();
+        setLogoUrl(response.data.logoUrl);
+      } catch (error) {
+        console.error("Failed to fetch footer logo:", error);
+      }
+    };
+
+    fetchSiteSettings();
+  }, []);
+
   return (
-    <footer className=" ">
+    <footer className="">
       <div
         className="
           relative
           overflow-hidden
-
           min-h-[700px]
           px-6
           md:px-12
@@ -83,7 +98,7 @@ export default function Footer() {
         <div className="relative z-10">
           {/* Contact */}
           <div className="max-w-7xl">
-            <div className="flex items-center gap-2 text-[32px] text-gray-300  mb-6">
+            <div className="flex items-center gap-2 text-[32px] text-gray-300 mb-6">
               <Sparkles size={12} />
               <span>Contact Us</span>
             </div>
@@ -161,63 +176,33 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Large Logo */}
+        {/* Dynamic Logo */}
         <div className="relative z-10 mt-20">
           <div
             className="
               flex
-              flex-col
-              lg:flex-row
-              items-start
-              lg:items-end
-              gap-6
+              items-end
+              justify-start
             "
           >
-            {/* Symbol */}
-            <div
-              className="
-                w-24
-                h-24
-                md:w-32
-                md:h-32
-                rounded-[30px]
-                border-2
-                border-white
-                flex
-                items-center
-                justify-center
-                shrink-0
-              "
-            >
-              <div
+            {logoUrl && (
+              <img
+                src={logoUrl}
+                alt="SaySocial"
                 className="
-                  w-10
-                  h-10
-                  md:w-14
-                  md:h-14
-                  bg-white
-                  rotate-45
-                  rounded-[18px]
+                  w-auto
+                  max-w-[320px]
+                  md:max-w-[500px]
+                  lg:max-w-[700px]
+                  h-auto
+                  max-h-[180px]
+                  md:max-h-[220px]
+                  lg:max-h-[280px]
+                  object-contain
+                  object-left
                 "
               />
-            </div>
-
-            {/* Text Logo */}
-            <h1
-              className="
-                text-white
-                font-bold
-                leading-none
-                tracking-tight
-                text-[4rem]
-                sm:text-[6rem]
-                md:text-[8rem]
-                lg:text-[10rem]
-                xl:text-[12rem]
-              "
-            >
-              SaySocial
-            </h1>
+            )}
           </div>
 
           {/* Bottom Bar */}

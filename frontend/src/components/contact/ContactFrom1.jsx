@@ -4,6 +4,7 @@ import vid from "../../assets/contact/sec.mp4";
 import useTextReveal from "../../hooks/useTextReveal";
 import useFadeUpCards from "../../hooks/useFadeIn";
 import { submitContactInquiry } from "../../api/contactApi";
+import ContactHero from "./ContactHero";
 
 export default function ContactForm() {
   const [message, setMessage] = useState("");
@@ -124,54 +125,7 @@ export default function ContactForm() {
       </div> */}
 
       {/* ================= HERO ================= */}
-      <div className="relative h-[70vh] min-h-[600px] overflow-hidden border-b border-white/10">
-        <video
-          autoPlay
-          loading="lazy"
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 h-full w-full object-cover opacity-40"
-        >
-          <source src={vid} type="video/mp4" />
-        </video>
-
-        <div className="absolute inset-0 bg-black/50" />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 h-full flex flex-col">
-          {/* HERO CONTENT */}
-          <div className="flex-1 flex items-end md:py-32">
-            <div className="max-w-4xl">
-              <div className="flex items-center gap-3 mb-8">
-                <span className="h-2.5 w-2.5 rounded-full bg-green-400 animate-pulse" />
-                <span
-                  ref={textReveal1}
-                  className="uppercase tracking-[0.3em] text-xl  text-white/100"
-                >
-                  Available for Projects
-                </span>
-              </div>
-
-              <h2
-                ref={textReveal2}
-                className="
-                  text-[48px]
-                  sm:text-[70px]
-                  md:text-[90px]
-                  lg:text-[120px]
-                  leading-[0.9]
-                  font-light
-                  tracking-tight
-                "
-              >
-                Let's build
-                <br />
-                something remarkable
-              </h2>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ContactHero />
 
       {/* ================= FORM ================= */}
       <div className=" max-w-7xl mx-auto px-6 lg:px-10 py-24 lg:py-32">

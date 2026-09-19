@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Menu, X, ArrowUpRight } from "lucide-react";
+import {getSiteSettings} from "../api/site-settings";
 
 export default function Navbar({ visible = true }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [scrolled, setScrolled] = useState(false);
+  const [logoUrl, setLogoUrl] = useState("");
 
   const lastScrollY = useRef(0);
 
@@ -13,6 +15,19 @@ export default function Navbar({ visible = true }) {
   const phoneNumber = "7021374839";
   const phoneLink = `tel:+91${phoneNumber}`;
   const whatsappLink = `https://wa.me/91${phoneNumber}`;
+
+  useEffect(() => {
+    const fetchSiteSettings = async () => {
+      try {
+        const response = await getSiteSettings();
+        setLogoUrl(response.data.logoUrl);
+      } catch (error) {
+        console.error("Failed to fetch navbar logo:", error);
+      }
+    };
+
+    fetchSiteSettings();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -146,67 +161,27 @@ export default function Navbar({ visible = true }) {
               {/* =========================
                   LOGO
               ========================== */}
-              <div className="justify-self-start flex items-center gap-5">
+              <div className="justify-self-start flex items-center">
                 <NavLink to="/">
-                  <div className="flex items-center gap-4 group cursor-pointer">
-                    {/* Dummy Symbol */}
-                    <div className="relative w-11 h-11">
-                      <div
+                  <div className="flex items-center group cursor-pointer">
+                    {logoUrl && (
+                      <img
+                        src={logoUrl}
+                        alt="SaySocial"
                         className="
-                          absolute
-                          inset-0
-                          rounded-full
-                          border
-                          border-white/20
-                          transition-all
-                          duration-700
-                          group-hover:rotate-180
+                          w-auto
+                          h-10
+                          sm:h-11
+                          md:h-12
+                          max-w-[180px]
+                          object-contain
+                          object-left
+                          transition-transform
+                          duration-500
+                          group-hover:scale-105
                         "
                       />
-
-                      <div
-                        className="
-                          absolute
-                          top-1/2
-                          left-1/2
-                          -translate-x-1/2
-                          -translate-y-1/2
-                          w-3
-                          h-3
-                          rounded-full
-                          bg-gradient-to-r
-                          from-fuchsia-400
-                          via-purple-400
-                          to-cyan-400
-                        "
-                      />
-                    </div>
-
-                    <div className="leading-none">
-                      <h1
-                        className="
-                          text-white
-                          text-xl
-                          lg:text-2xl
-                          font-black
-                          tracking-[-0.04em]
-                        "
-                      >
-                        SAY SOCIAL
-                      </h1>
-
-                      <p
-                        className="
-                          text-[10px]
-                          uppercase
-                          tracking-[0.45em]
-                          text-white/35
-                          mt-1
-                        "
-                      >
-                        CREATIVE AGENCY
-                      </p>
-                    </div>
+                    )}
                   </div>
                 </NavLink>
               </div>
@@ -274,10 +249,6 @@ export default function Navbar({ visible = true }) {
                   DESKTOP CTA
               ========================== */}
               <div className="justify-self-end">
-                {/* 
-                  Desktop:
-                  Clicking this button opens phone dialer
-                */}
                 <a
                   href={phoneLink}
                   className="

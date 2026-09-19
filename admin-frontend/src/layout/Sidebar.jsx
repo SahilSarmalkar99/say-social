@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, FolderTree, Building2, Layers3, Users, FolderKanban,
-  Video, ShieldCheck, MessageSquareQuote, X, User2Icon, Sparkles
+  Video, ShieldCheck, MessageSquareQuote, X, User2Icon, Sparkles, Settings
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -16,6 +16,8 @@ const menus = [
   { title: "Trusted By", icon: ShieldCheck, path: "/trustedBy" },
   { title: "Testimonials", icon: MessageSquareQuote, path: "/testimonials" },
   { title: "Job Roles", icon: User2Icon, path: "/job-roles" },
+  { title: "Hero Video", icon: Video, path: "/hero-video" },
+  { title: "Navbar & Footer Logo", icon: Settings, path: "/logo" },
 ];
 
 export default function Sidebar({ open, setOpen }) {
