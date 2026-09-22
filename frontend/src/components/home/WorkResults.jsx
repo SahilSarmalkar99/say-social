@@ -5,6 +5,13 @@ import useTextReveal from "../../hooks/useTextReveal";
 import useFadeUpCards from "../../hooks/useFadeIn";
 import HomeAPI from "../../api/home.api";
 
+const filterOrder = [
+  "Production",
+  "Graphics",
+  "Case Study",
+  "Website",
+];
+
 export default function WorkResults() {
   const [workCategories, setWorkCategories] = useState([]);
   const [active, setActive] = useState("");
@@ -20,17 +27,23 @@ export default function WorkResults() {
       try {
         const res = await HomeAPI.getAll();
         // console.log(res);
-        const workSection = res.data.find(
-  (item) => item.section === "work"
-);
+        const workSection = res.data.find((item) => item.section === "work");
 
         const categories = workSection?.workCategories || [];
 
         setWorkCategories(categories);
 
-        if (categories.length) {
-          setActive(categories[0].category?.name);
-        }
+const firstCategory = filterOrder.find((filter) =>
+  categories.some(
+    (group) => group.category?.name === filter
+  )
+);
+
+if (firstCategory) {
+  setActive(firstCategory);
+}
+
+
       } catch (err) {
         console.error(err);
       } finally {
@@ -47,7 +60,9 @@ export default function WorkResults() {
   // const smallCards = items.slice(2);
 
   // filters
-  const filters = workCategories.map((group) => group.category?.name);
+  const filters = filterOrder.filter((filter) =>
+    workCategories.some((group) => group.category?.name === filter),
+  );
 
   const activeCategory = workCategories.find(
     (group) => group.category?.name === active,
@@ -58,8 +73,6 @@ export default function WorkResults() {
   const largeCards = activeCategory.videos.slice(0, 2);
 
   const smallCards = activeCategory.videos.slice(2);
-
-
 
   if (loading) {
     return (
