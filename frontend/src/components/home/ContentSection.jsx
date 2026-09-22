@@ -20,6 +20,8 @@ export default function ContentSection() {
           (item) => item.section === "content-creating",
         );
 
+        console.log(section);
+
         setVideos(section?.videos || []);
       } catch (err) {
         console.error(err);
@@ -31,8 +33,8 @@ export default function ContentSection() {
     fetchContent();
   }, []);
 
-  const topRow = videos.slice(0, 3);
-  const bottomRow = videos.slice(3);
+  const topRow = videos.slice(0, 4);
+  const bottomRow = videos.slice(4);
 
   if (loading) {
     return (
@@ -60,20 +62,9 @@ export default function ContentSection() {
           Relatable And Impactful.
         </h2>
 
-        {/* =========================
-            TOP ROW
-        ========================== */}
-        <div
-          className="
-            fade-card
-            flex
-            justify-center
-            flex-wrap
-            gap-6
-            mb-6
-          "
-        >
-          {topRow.map((item, index) => (
+        {/* TOP ROW */}
+        <div className="fade-card w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 justify-items-center">
+          {topRow.slice(0, 4).map((item, index) => (
             <ContentCard
               key={item.url || index}
               video={item.url}
@@ -83,19 +74,9 @@ export default function ContentSection() {
           ))}
         </div>
 
-        {/* =========================
-            BOTTOM ROW
-        ========================== */}
-        <div
-          className="
-            fade-card
-            flex
-            justify-center
-            flex-wrap
-            gap-6
-          "
-        >
-          {bottomRow.map((item, index) => (
+        {/* BOTTOM ROW */}
+        <div className="fade-card w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
+          {bottomRow.slice(0, 4).map((item, index) => (
             <ContentCard
               key={item.url || index}
               video={item.url}

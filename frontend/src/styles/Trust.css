@@ -33,6 +33,15 @@
   animation: scroll 35s linear infinite;
 }
 
+.group-trust {
+  padding-right: 80px;
+}
+
+.group-reverse-trust{
+  padding-left: 20px;
+
+}
+
 .group-reverse-trust {
   animation-direction: reverse;
 }

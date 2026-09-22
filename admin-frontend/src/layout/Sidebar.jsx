@@ -12,7 +12,7 @@ const menus = [
   { title: "Companies", icon: Building2, path: "/companies" },
   { title: "Team", icon: Users, path: "/team" },
   { title: "Projects", icon: FolderKanban, path: "/project" },
-  // { title: "Work", icon: Video, path: "/work" },
+  { title: "Work", icon: Video, path: "/work" },
   { title: "Trusted By", icon: ShieldCheck, path: "/trustedBy" },
   { title: "Testimonials", icon: MessageSquareQuote, path: "/testimonials" },
   { title: "Job Roles", icon: User2Icon, path: "/job-roles" },

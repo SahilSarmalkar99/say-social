@@ -20,6 +20,14 @@ const logoSchema = new mongoose.Schema(
       default: "Trusted company logo",
     },
 
+    // Which carousel this logo belongs to
+    carousel: {
+      type: String,
+      enum: ["top", "bottom"],
+      default: "top",
+      required: true,
+    },
+
     isActive: {
       type: Boolean,
       default: true,
