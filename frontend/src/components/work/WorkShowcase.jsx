@@ -8,7 +8,6 @@ import WorkGrid from "./WorkGrid";
 
 export default function WorkShowcase() {
   const [loading, setLoading] = useState(true);
-
   const [items, setItems] = useState([]);
 
   const [category, setCategory] = useState({
@@ -30,10 +29,11 @@ export default function WorkShowcase() {
       setLoading(true);
 
       const res = await PortfolioAPI.getAll();
-console.log(res.data.data);
-      setItems(res.data.data);
+
+      setItems(res.data.data || []);
     } catch (err) {
-      console.log(err);
+      console.error("Failed to load portfolio:", err);
+      setItems([]);
     } finally {
       setLoading(false);
     }
@@ -42,12 +42,12 @@ console.log(res.data.data);
   const filteredItems = items.filter((item) => {
     const categoryId =
       typeof item.category === "object"
-        ? item.category._id
+        ? item.category?._id
         : item.category;
 
     const subCategoryId =
       typeof item.subCategory === "object"
-        ? item.subCategory._id
+        ? item.subCategory?._id
         : item.subCategory;
 
     const categoryMatch =
@@ -61,10 +61,8 @@ console.log(res.data.data);
     return categoryMatch && subCategoryMatch;
   });
 
-  // console.log(filteredItems);
-
   return (
-    <section className="py-28">
+    <section className="w-full py-20 md:py-28 overflow-hidden">
 
       <CategoryTabs
         value={category}

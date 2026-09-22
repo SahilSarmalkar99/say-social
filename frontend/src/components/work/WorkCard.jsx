@@ -2,7 +2,20 @@ import { ArrowUpRight } from "lucide-react";
 
 export default function WorkCard({ item }) {
   return (
-    <div className="group relative h-[90vh] max-h-[800px] min-h-[500px] overflow-hidden rounded-[34px] bg-black">
+    <div
+      className="
+        group
+        relative
+        w-full
+        h-screen
+        max-h-[800px]
+        min-h-[500px]
+        overflow-hidden
+        rounded-[34px]
+        bg-black
+      "
+    >
+      {/* VIDEO */}
       <video
         src={item.previewVideo}
         autoPlay
@@ -10,24 +23,52 @@ export default function WorkCard({ item }) {
         loop
         playsInline
         preload="metadata"
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+        className="
+          absolute
+          inset-0
+          w-full
+          h-full
+          min-w-full
+          min-h-full
+          object-cover
+          transition-transform
+          duration-700
+          ease-out
+          group-hover:scale-105
+        "
       />
 
-      <div className="absolute inset-0 bg-black/25 transition-all duration-500 group-hover:bg-black/40" />
-
+      {/* OVERLAY */}
       <div
         className="
           absolute
-          left-6
-          right-6
-          bottom-6
+          inset-0
+          bg-black/25
+          transition-all
+          duration-500
+          group-hover:bg-black/40
+        "
+      />
+
+      {/* INFO */}
+      <div
+        className="
+          absolute
+          left-4
+          right-4
+          bottom-4
+          sm:left-6
+          sm:right-6
+          sm:bottom-6
           rounded-2xl
           border
           border-white/10
           bg-white/10
           backdrop-blur-xl
-          px-6
-          py-5
+          px-4
+          py-4
+          sm:px-6
+          sm:py-5
           flex
           justify-between
           items-center
@@ -40,18 +81,18 @@ export default function WorkCard({ item }) {
         "
       >
         <div>
-          <h3 className="text-xl font-semibold text-white">
+          <h3 className="text-lg sm:text-xl font-semibold text-white">
             {item.subCategory?.name}
           </h3>
 
-          <p className="text-white/70">
+          <p className="text-sm sm:text-base text-white/70">
             {item.category?.name}
           </p>
         </div>
 
         <ArrowUpRight
           size={26}
-          className="text-white"
+          className="text-white shrink-0"
         />
       </div>
     </div>
