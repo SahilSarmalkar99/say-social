@@ -3,6 +3,9 @@ import WorkCard from "./WorkCard";
 export default function WorkGrid({
   items,
   loading,
+  activeVideoId,
+  onVideoActivate,
+  onRegisterVideo,
 }) {
   if (loading) {
     return (
@@ -28,6 +31,9 @@ export default function WorkGrid({
         <WorkCard
           key={item._id}
           item={item}
+          activeVideoId={activeVideoId}
+          onVideoActivate={onVideoActivate}
+          onRegisterVideo={onRegisterVideo}
         />
       ))}
     </div>

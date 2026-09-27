@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import PortfolioAPI from "../../api/portfolio.api";
 
@@ -20,6 +20,24 @@ export default function WorkShowcase() {
     name: "All",
   });
 
+  /*
+   * ------------------------------------------------------
+   * AUDIO STATE
+   * ------------------------------------------------------
+   */
+
+  // ID of the video that currently owns the audio
+  const [activeVideoId, setActiveVideoId] = useState(null);
+
+  // Store video DOM elements
+  const videoRefs = useRef({});
+
+  /*
+   * ------------------------------------------------------
+   * LOAD PORTFOLIO
+   * ------------------------------------------------------
+   */
+
   useEffect(() => {
     loadPortfolio();
   }, []);
@@ -38,6 +56,152 @@ export default function WorkShowcase() {
       setLoading(false);
     }
   }
+
+  /*
+   * ------------------------------------------------------
+   * REGISTER VIDEO
+   *
+   * WorkGrid will call this for every video.
+   * ------------------------------------------------------
+   */
+
+  const registerVideo = (id, video) => {
+    if (video) {
+      videoRefs.current[id] = video;
+    } else {
+      delete videoRefs.current[id];
+    }
+  };
+
+  /*
+   * ------------------------------------------------------
+   * ACTIVATE VIDEO AUDIO
+   *
+   * Clicking a video makes it the only video with audio.
+   *
+   * IMPORTANT:
+   * We DON'T pause the video.
+   * We only change its muted state.
+   * ------------------------------------------------------
+   */
+
+  const activateVideo = (id) => {
+    const clickedVideo = videoRefs.current[id];
+
+    if (!clickedVideo) return;
+
+    /*
+     * Mute every other video
+     */
+
+    Object.entries(videoRefs.current).forEach(
+      ([videoId, video]) => {
+        if (!video) return;
+
+        if (String(videoId) !== String(id)) {
+          video.muted = true;
+        }
+      }
+    );
+
+    /*
+     * Activate clicked video
+     */
+
+    clickedVideo.muted = false;
+
+    setActiveVideoId(id);
+  };
+
+  /*
+   * ------------------------------------------------------
+   * STOP AUDIO
+   *
+   * IMPORTANT:
+   * Video keeps playing.
+   * Only audio is stopped.
+   * ------------------------------------------------------
+   */
+
+  const stopAudio = () => {
+    Object.values(videoRefs.current).forEach((video) => {
+      if (!video) return;
+
+      video.muted = true;
+    });
+
+    setActiveVideoId(null);
+  };
+
+  /*
+   * ------------------------------------------------------
+   * CLICK OUTSIDE VIDEO
+   *
+   * If user clicks anywhere outside a video,
+   * audio stops but video continues playing.
+   * ------------------------------------------------------
+   */
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      const clickedInsideVideo = event.target.closest(
+        "[data-portfolio-video]"
+      );
+
+      if (!clickedInsideVideo) {
+        stopAudio();
+      }
+    };
+
+    document.addEventListener(
+      "click",
+      handleOutsideClick
+    );
+
+    return () => {
+      document.removeEventListener(
+        "click",
+        handleOutsideClick
+      );
+    };
+  }, []);
+
+  /*
+   * ------------------------------------------------------
+   * CATEGORY CHANGE
+   *
+   * Stop current audio when changing category.
+   * ------------------------------------------------------
+   */
+
+  const handleCategoryChange = (cat) => {
+    stopAudio();
+
+    setCategory(cat);
+
+    setSubCategory({
+      _id: "all",
+      name: "All",
+    });
+  };
+
+  /*
+   * ------------------------------------------------------
+   * SUB CATEGORY CHANGE
+   * ------------------------------------------------------
+   */
+
+  const handleSubCategoryChange = (subCat) => {
+    stopAudio();
+
+    setSubCategory(subCat);
+  };
+
+  /*
+   * ------------------------------------------------------
+   * FILTER
+   * ------------------------------------------------------
+   */
 
   const filteredItems = items.filter((item) => {
     const categoryId =
@@ -61,32 +225,38 @@ export default function WorkShowcase() {
     return categoryMatch && subCategoryMatch;
   });
 
+  /*
+   * ------------------------------------------------------
+   * RENDER
+   * ------------------------------------------------------
+   */
+
   return (
-    <section className="w-full py-20 md:py-28 overflow-hidden">
+    <section className="w-full overflow-hidden py-20 md:py-28">
+      {/* CATEGORY */}
 
       <CategoryTabs
         value={category}
-        onChange={(cat) => {
-          setCategory(cat);
-
-          setSubCategory({
-            _id: "all",
-            name: "All",
-          });
-        }}
+        onChange={handleCategoryChange}
       />
+
+      {/* SUB CATEGORY */}
 
       <SubCategoryTabs
         category={category}
         value={subCategory}
-        onChange={setSubCategory}
+        onChange={handleSubCategoryChange}
       />
+
+      {/* WORK GRID */}
 
       <WorkGrid
         loading={loading}
         items={filteredItems}
+        activeVideoId={activeVideoId}
+        onVideoActivate={activateVideo}
+        onRegisterVideo={registerVideo}
       />
-
     </section>
   );
 }

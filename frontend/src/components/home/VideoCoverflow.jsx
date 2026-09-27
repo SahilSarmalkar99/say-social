@@ -1,24 +1,31 @@
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import useTextReveal from "../../hooks/useTextReveal";
 import useFadeUpCards from "../../hooks/useFadeIn";
 import { useState, useRef, useEffect } from "react";
 import HomeAPI from "../../api/home.api";
 
-// const videos = [
-//   { id: 1, src: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367626/sa1_rnyypa.mp4" },
-//   { id: 2, src: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367632/sa2_iqbzef.mp4" },
-//   { id: 3, src: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367619/sa3_yem6m3.mp4" },
-//   { id: 4, src: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367600/or1_oysbpg.mp4" },
-//   { id: 5, src: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367603/or2_asxea7.mp4" },
-//   { id: 6, src: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367604/or3_ckukxh.mp4" },
-// ];
-
 export default function VideoCoverflow() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const videoRefs = useRef({});
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+
+  const textReveal = useTextReveal();
+  const textReveal2 = useTextReveal();
+  const fadeIn = useFadeUpCards();
+
+  /*
+   * -------------------------------------------------------
+   * FETCH VIDEOS
+   * -------------------------------------------------------
+   */
 
   useEffect(() => {
     const fetchFeaturedWork = async () => {
@@ -26,18 +33,18 @@ export default function VideoCoverflow() {
         const res = await HomeAPI.getAll();
 
         const section = res.data.find(
-          (item) => item.section === "featured-work",
+          (item) => item.section === "featured-work"
         );
 
         const videos =
-          section?.videos.map((video, index) => ({
+          section?.videos?.map((video, index) => ({
             id: index + 1,
             src: video.url,
           })) || [];
 
         setItems(videos);
       } catch (err) {
-        console.error(err);
+        console.error("Failed to load featured work:", err);
       } finally {
         setLoading(false);
       }
@@ -46,94 +53,273 @@ export default function VideoCoverflow() {
     fetchFeaturedWork();
   }, []);
 
+  /*
+   * -------------------------------------------------------
+   * CAROUSEL SLOTS
+   *
+   * index 2 = LEFT
+   * index 3 = CENTER
+   * index 4 = RIGHT
+   * -------------------------------------------------------
+   */
+
+  const slots = [
+    {
+      x: -700,
+      scale: 0.45,
+      rotateY: 45,
+      opacity: 0,
+      zIndex: 0,
+    },
+    {
+      x: -550,
+      scale: 0.65,
+      rotateY: 35,
+      opacity: 0.25,
+      zIndex: 10,
+    },
+    {
+      x: -280,
+      scale: 0.85,
+      rotateY: 20,
+      opacity: 0.8,
+      zIndex: 20,
+    },
+    {
+      x: 0,
+      scale: 1,
+      rotateY: 0,
+      opacity: 1,
+      zIndex: 50,
+    },
+    {
+      x: 280,
+      scale: 0.85,
+      rotateY: -20,
+      opacity: 0.8,
+      zIndex: 20,
+    },
+    {
+      x: 550,
+      scale: 0.65,
+      rotateY: -35,
+      opacity: 0.25,
+      zIndex: 10,
+    },
+  ];
+
+  /*
+   * -------------------------------------------------------
+   * VIDEO PLAYBACK CONTROLLER
+   *
+   * ONLY:
+   *
+   * index 2 -> LEFT
+   * index 3 -> CENTER
+   * index 4 -> RIGHT
+   *
+   * are allowed to play.
+   *
+   * Everything else is paused.
+   * -------------------------------------------------------
+   */
+
   useEffect(() => {
     if (!items.length) return;
 
-    const visibleIds = [items[4]?.id, items[3]?.id, items[2]?.id];
+    // Give React time to update the refs after reordering.
+    const timer = setTimeout(() => {
+      items.forEach((item, index) => {
+        const video = videoRefs.current[item.id];
 
-    Object.entries(videoRefs.current).forEach(([id, video]) => {
-      if (!video) return;
+        if (!video) return;
 
-      if (visibleIds.includes(Number(id))) {
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
-    });
-  }, [items]);
+        const isVisibleVideo =
+          index === 2 ||
+          index === 3 ||
+          index === 4;
+
+        const isCenterVideo = index === 3;
+
+        if (isVisibleVideo) {
+          // Side videos are ALWAYS muted.
+          if (!isCenterVideo) {
+            video.muted = true;
+          }
+
+          // Center follows mute state.
+          if (isCenterVideo) {
+            video.muted = isMuted;
+          }
+
+          video.play().catch(() => {
+            // Browser autoplay restrictions can block unmuted playback.
+            // If that happens, fallback to muted playback.
+            video.muted = true;
+
+            video.play().catch(() => {});
+          });
+        } else {
+          video.pause();
+          video.currentTime = 0;
+          video.muted = true;
+        }
+      });
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [items, isMuted]);
+
+  /*
+   * -------------------------------------------------------
+   * NEXT
+   * -------------------------------------------------------
+   */
 
   const next = () => {
     setItems((prev) => {
+      if (prev.length <= 1) return prev;
+
       const arr = [...prev];
+
       const last = arr.pop();
-      setIsAnimating(true);
+
       return [last, ...arr];
     });
   };
 
+  /*
+   * -------------------------------------------------------
+   * PREVIOUS
+   * -------------------------------------------------------
+   */
+
   const prev = () => {
     setItems((prev) => {
+      if (prev.length <= 1) return prev;
+
       const arr = [...prev];
+
       const first = arr.shift();
-      setIsAnimating(true);
 
       return [...arr, first];
     });
   };
 
-  const slots = [
-    { x: -700, scale: 0.45, rotateY: 45, opacity: 0, zIndex: 0 },
-    { x: -550, scale: 0.65, rotateY: 35, opacity: 0.25, zIndex: 10 },
-    { x: -280, scale: 0.85, rotateY: 20, opacity: 0.8, zIndex: 20 },
-    { x: 0, scale: 1, rotateY: 0, opacity: 1, zIndex: 50 },
-    { x: 280, scale: 0.85, rotateY: -20, opacity: 0.8, zIndex: 20 },
-    { x: 550, scale: 0.65, rotateY: -35, opacity: 0.25, zIndex: 10 },
-  ];
+  /*
+   * -------------------------------------------------------
+   * MUTE / UNMUTE
+   *
+   * Only center video gets audio.
+   * -------------------------------------------------------
+   */
 
-  const textReveal = useTextReveal();
-  const textReveal2 = useTextReveal();
-  const fadeIn = useFadeUpCards();
+  const toggleMute = () => {
+    const centerItem = items[3];
+
+    if (!centerItem) return;
+
+    const centerVideo = videoRefs.current[centerItem.id];
+
+    if (!centerVideo) return;
+
+    const newMutedState = !isMuted;
+
+    centerVideo.muted = newMutedState;
+
+    setIsMuted(newMutedState);
+
+    if (!newMutedState) {
+      centerVideo
+        .play()
+        .catch(() => {
+          // Browser may still reject autoplay with audio.
+          centerVideo.muted = true;
+          setIsMuted(true);
+        });
+    }
+  };
+
+  /*
+   * -------------------------------------------------------
+   * LOADING
+   * -------------------------------------------------------
+   */
 
   if (loading) {
     return (
-      <section className="py-24 text-center text-white">Loading...</section>
+      <section className="py-24 text-center text-white">
+        Loading...
+      </section>
     );
   }
+
+  /*
+   * -------------------------------------------------------
+   * UI
+   * -------------------------------------------------------
+   */
 
   return (
     <section
       ref={fadeIn}
       className="
-      md:py-24
-      relative
-      overflow-hidden
-      flex
-      items-center
-      justify-center
-    "
+        relative
+        flex
+        items-center
+        justify-center
+        overflow-hidden
+        py-16
+        md:py-24
+      "
     >
-      {/* Glow */}
+      {/* Background Glow */}
 
       <div
         className="
-        absolute
-        w-[900px]
-        h-[900px]
-        rounded-full
-        blur-[180px]
-      "
+          pointer-events-none
+          absolute
+          left-1/2
+          top-1/2
+          h-[600px]
+          w-[600px]
+          -translate-x-1/2
+          -translate-y-1/2
+          rounded-full
+          bg-purple-600/10
+          blur-[180px]
+          md:h-[900px]
+          md:w-[900px]
+        "
       />
 
-      <div className="absolute top-15 left-1/2 -translate-x-1/2 z-50 text-center">
+      {/* ------------------------------------------------ */}
+      {/* HEADING */}
+      {/* ------------------------------------------------ */}
+
+      <div
+        className="
+          absolute
+          left-1/2
+          top-10
+          z-[100]
+          w-full
+          -translate-x-1/2
+          px-4
+          text-center
+          md:top-16
+        "
+      >
         <h2
           ref={textReveal}
           className="
-      text-4xl
-      md:text-[72px]
-      font-bold
-      text-white
-      mb-4
-    "
+            mb-3
+            text-4xl
+            font-bold
+            text-white
+            sm:text-5xl
+            md:text-[72px]
+          "
         >
           Featured Work
         </h2>
@@ -141,66 +327,46 @@ export default function VideoCoverflow() {
         <p
           ref={textReveal2}
           className="
-      text-white/70
-      text-sm
-      md:text-lg
-      max-w-xl
-      mx-auto
-    "
+            mx-auto
+            max-w-xl
+            text-sm
+            text-white/70
+            sm:text-base
+            md:text-lg
+          "
         >
           Explore our latest projects, campaigns, and creative productions.
         </p>
       </div>
 
-      {/* Carousel */}
+      {/* ------------------------------------------------ */}
+      {/* CAROUSEL */}
+      {/* ------------------------------------------------ */}
 
       <div
-        className="fade-card
-        relative
-        w-full
-        h-[450px]
-sm:h-[550px]
-md:h-[650px]
-lg:h-[700px]
-        perspective-[2500px]
-        mt-50
-        md:mt-20
-      "
+        className="
+          fade-card
+          relative
+          mt-40
+          h-[420px]
+          w-full
+          perspective-[2500px]
+          sm:h-[520px]
+          md:mt-20
+          md:h-[650px]
+          lg:h-[700px]
+        "
       >
         {items.map((item, index) => {
           const slot = slots[index];
 
-          const shouldPlay = index === 1 || index === 2 || index === 3;
+          if (!slot) return null;
+
+          const isCenter = index === 3;
 
           return (
             <motion.div
               key={item.id}
-              layout
-              onAnimationComplete={() => {
-                if (index === 2) {
-                  Object.values(videoRefs.current).forEach((video) => {
-                    if (!video) return;
-
-                    video.pause();
-                  });
-
-                  Object.entries(videoRefs.current).forEach(([id, video]) => {
-                    if (!video) return;
-
-                    const num = Number(id);
-
-                    if (
-                      num === items[1]?.id ||
-                      num === items[2]?.id ||
-                      num === items[3]?.id
-                    ) {
-                      video.play().catch(() => {});
-                    }
-                  });
-
-                  setIsAnimating(false);
-                }
-              }}
               animate={{
                 x: slot.x,
                 scale: slot.scale,
@@ -224,89 +390,218 @@ lg:h-[700px]
             >
               <div
                 className="
+                  relative
+                  h-[300px]
+                  w-[170px]
                   overflow-hidden
-                  rounded-[32px]
+                  rounded-[24px]
                   bg-black
-                  w-[180px]
-                  h-[320px]
-                  sm:w-[220px]
+                  shadow-2xl
                   sm:h-[400px]
-                  md:w-[280px]
+                  sm:w-[220px]
+                  sm:rounded-[28px]
                   md:h-[520px]
+                  md:w-[280px]
+                  md:rounded-[32px]
                 "
               >
                 <video
                   ref={(el) => {
-                    if (el) videoRefs.current[item.id] = el;
+                    if (el) {
+                      videoRefs.current[item.id] = el;
+                    } else {
+                      delete videoRefs.current[item.id];
+                    }
                   }}
                   src={item.src}
-                  muted
+                  muted={!isCenter ? true : isMuted}
                   loop
-                  loading="lazy"
                   playsInline
                   preload="auto"
-                  className="w-full h-full object-cover"
+                  className="
+                    h-full
+                    w-full
+                    object-cover
+                  "
                 />
 
-                {index !== 2 && <div className="absolute inset-0 " />}
+                {/* ------------------------------------------------ */}
+                {/* SIDE VIDEO DARK OVERLAY */}
+                {/* ------------------------------------------------ */}
+
+                {!isCenter && (
+                  <div
+                    className="
+                      pointer-events-none
+                      absolute
+                      inset-0
+                      bg-black/20
+                    "
+                  />
+                )}
+
+                {/* ------------------------------------------------ */}
+                {/* CENTER VIDEO GRADIENT */}
+                {/* ------------------------------------------------ */}
+
+                {isCenter && (
+                  <div
+                    className="
+                      pointer-events-none
+                      absolute
+                      inset-0
+                      bg-gradient-to-t
+                      from-black/20
+                      via-transparent
+                      to-transparent
+                    "
+                  />
+                )}
+
+                {/* ------------------------------------------------ */}
+                {/* MUTE / UNMUTE */}
+                {/* ------------------------------------------------ */}
+
+                {isCenter && (
+                  <button
+                    type="button"
+                    onClick={toggleMute}
+                    aria-label={
+                      isMuted
+                        ? "Unmute video"
+                        : "Mute video"
+                    }
+                    className="
+                      absolute
+                      bottom-4
+                      right-4
+                      z-20
+                      flex
+                      h-11
+                      w-11
+                      items-center
+                      justify-center
+                      rounded-full
+                      border
+                      border-white/20
+                      bg-black/50
+                      text-white
+                      backdrop-blur-xl
+                      transition-all
+                      duration-300
+                      hover:scale-110
+                      hover:bg-black/70
+                      sm:h-12
+                      sm:w-12
+                    "
+                  >
+                    {isMuted ? (
+                      <VolumeX
+                        size={20}
+                        strokeWidth={2}
+                      />
+                    ) : (
+                      <Volume2
+                        size={20}
+                        strokeWidth={2}
+                      />
+                    )}
+                  </button>
+                )}
               </div>
             </motion.div>
           );
         })}
       </div>
 
-      {/* Prev */}
+      {/* ------------------------------------------------ */}
+      {/* PREVIOUS */}
+      {/* ------------------------------------------------ */}
 
       <button
+        type="button"
         onClick={prev}
+        aria-label="Previous video"
         className="
           absolute
           left-3
-          md:left-8
-          z-50
-          w-14
-          h-14
-          rounded-full
-          bg-white/10
-          backdrop-blur-lg
-          border
-          border-white/20
-          text-white
+          top-1/2
+          z-[100]
+          mt-16
           flex
+          h-11
+          w-11
+          -translate-y-1/2
           items-center
           justify-center
-          mt-30
+          rounded-full
+          border
+          border-white/20
+          bg-white/10
+          text-white
+          backdrop-blur-lg
+          transition-all
+          duration-300
+          hover:scale-110
+          hover:bg-white/20
+          sm:left-5
+          sm:h-12
+          sm:w-12
+          md:left-8
           md:mt-0
+          md:h-14
+          md:w-14
         "
       >
-        <ChevronLeft />
+        <ChevronLeft
+          size={22}
+          className="sm:h-6 sm:w-6"
+        />
       </button>
 
-      {/* Next */}
+      {/* ------------------------------------------------ */}
+      {/* NEXT */}
+      {/* ------------------------------------------------ */}
 
       <button
+        type="button"
         onClick={next}
+        aria-label="Next video"
         className="
           absolute
           right-3
-          md:right-8
-          mt-30
-          md:mt-0
-          z-50
-          w-14
-          h-14
-          rounded-full
-          bg-white/10
-          backdrop-blur-lg
-          border
-          border-white/20
-          text-white
+          top-1/2
+          z-[100]
+          mt-16
           flex
+          h-11
+          w-11
+          -translate-y-1/2
           items-center
           justify-center
+          rounded-full
+          border
+          border-white/20
+          bg-white/10
+          text-white
+          backdrop-blur-lg
+          transition-all
+          duration-300
+          hover:scale-110
+          hover:bg-white/20
+          sm:right-5
+          sm:h-12
+          sm:w-12
+          md:right-8
+          md:mt-0
+          md:h-14
+          md:w-14
         "
       >
-        <ChevronRight />
+        <ChevronRight
+          size={22}
+          className="sm:h-6 sm:w-6"
+        />
       </button>
     </section>
   );

@@ -1,9 +1,10 @@
 .testimonialcarousel-trust {
   width: 90%;
   margin: 4px auto;
+
   display: flex;
   overflow: hidden;
-  gap: 1rem;
+
   border-radius: 20px;
 
   -webkit-mask-image: linear-gradient(
@@ -13,6 +14,7 @@
     black 90%,
     transparent
   );
+
   mask-image: linear-gradient(
     to right,
     transparent,
@@ -22,40 +24,71 @@
   );
 }
 
-.testimonial-card {
-  flex: 0 0 auto;
-  width: 320px;
-  height: fit-content;
-  padding: 24px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.08);
-  transition: all 0.3s ease;
-}
-
-
 .group-trust {
   display: flex;
+  flex-shrink: 0;
   gap: 1rem;
+
   animation: scroll 35s linear infinite;
+}
+
+.testimonial-card {
+  flex: 0 0 320px;
+  width: 320px;
+  height: fit-content;
+  margin-right: 3rem;
+  padding: 24px;
+
+  border-radius: 20px;
+
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  transition: all 0.3s ease;
 }
 
 .testimonialcarousel-trust:hover .group-trust {
   animation-play-state: paused;
 }
 
-/* Tablet */
+
+/* =========================
+   SEAMLESS LOOP
+========================= */
+
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-100% - 1rem));
+  }
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
 @media (max-width: 768px) {
   .testimonial-card {
+    flex-basis: 280px;
     width: 280px;
     height: 220px;
   }
 }
 
-/* Mobile */
+
+/* =========================
+   MOBILE
+========================= */
+
 @media (max-width: 480px) {
   .testimonial-card {
+    flex-basis: 250px;
     width: 250px;
     height: 230px;
     padding: 18px;

@@ -1,12 +1,15 @@
 import { ArrowUpRight } from "lucide-react";
 import useTextReveal from "../../hooks/useTextReveal";
 import useFadeUpCards from "../../hooks/useFadeIn";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import HomeAPI from "../../api/home.api";
 
 export default function ContentSection() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Only used for controlling which video has audio
+  const [activeVideo, setActiveVideo] = useState(null);
 
   const textReveal = useTextReveal();
   const fadeIn = useFadeUpCards();
@@ -32,6 +35,25 @@ export default function ContentSection() {
 
     fetchContent();
   }, []);
+
+  // Stop audio when clicking outside any video card
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!event.target.closest("[data-content-video]")) {
+        setActiveVideo(null);
+      }
+    };
+
+    document.addEventListener("click", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+  }, []);
+
+  const handleVideoClick = (videoId) => {
+    setActiveVideo((current) => (current === videoId ? null : videoId));
+  };
 
   const topRow = videos.slice(0, 4);
   const bottomRow = videos.slice(4);
@@ -64,26 +86,40 @@ export default function ContentSection() {
 
         {/* TOP ROW */}
         <div className="fade-card w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 justify-items-center">
-          {topRow.slice(0, 4).map((item, index) => (
-            <ContentCard
-              key={item.url || index}
-              video={item.url}
-              brandName={item.company?.name}
-              brandLogo={item.logoUrl}
-            />
-          ))}
+          {topRow.slice(0, 4).map((item, index) => {
+            const videoId = `top-${index}-${item.url}`;
+
+            return (
+              <ContentCard
+                key={item.url || index}
+                video={item.url}
+                brandName={item.company?.name}
+                brandLogo={item.logoUrl}
+                videoId={videoId}
+                isActive={activeVideo === videoId}
+                onVideoClick={handleVideoClick}
+              />
+            );
+          })}
         </div>
 
         {/* BOTTOM ROW */}
         <div className="fade-card w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
-          {bottomRow.slice(0, 4).map((item, index) => (
-            <ContentCard
-              key={item.url || index}
-              video={item.url}
-              brandName={item.company?.name}
-              brandLogo={item.logoUrl}
-            />
-          ))}
+          {bottomRow.slice(0, 4).map((item, index) => {
+            const videoId = `bottom-${index}-${item.url}`;
+
+            return (
+              <ContentCard
+                key={item.url || index}
+                video={item.url}
+                brandName={item.company?.name}
+                brandLogo={item.logoUrl}
+                videoId={videoId}
+                isActive={activeVideo === videoId}
+                onVideoClick={handleVideoClick}
+              />
+            );
+          })}
         </div>
       </div>
     </section>
@@ -94,7 +130,16 @@ export default function ContentSection() {
    CONTENT CARD
 ========================================= */
 
-function ContentCard({ video, brandName, brandLogo }) {
+function ContentCard({
+  video,
+  brandName,
+  brandLogo,
+  videoId,
+  isActive,
+  onVideoClick,
+}) {
+  const videoRef = useRef(null);
+
   /*
     Priority:
 
@@ -109,8 +154,23 @@ function ContentCard({ video, brandName, brandLogo }) {
   const hasName =
     brandName && typeof brandName === "string" && brandName.trim() !== "";
 
+  // ONLY controls audio.
+  // Does not touch your GSAP animations.
+  useEffect(() => {
+    if (!videoRef.current) return;
+
+    videoRef.current.muted = !isActive;
+  }, [isActive]);
+
+  const handleClick = (event) => {
+    event.stopPropagation();
+    onVideoClick(videoId);
+  };
+
   return (
     <div
+      data-content-video
+      onClick={handleClick}
       className="
         fade-card
         relative
@@ -133,7 +193,9 @@ function ContentCard({ video, brandName, brandLogo }) {
       {/* =========================
           VIDEO
       ========================== */}
+
       <video
+        ref={videoRef}
         src={video}
         autoPlay
         muted
@@ -154,6 +216,7 @@ function ContentCard({ video, brandName, brandLogo }) {
       {/* =========================
           GRADIENT
       ========================== */}
+
       <div
         className="
           absolute
@@ -168,6 +231,7 @@ function ContentCard({ video, brandName, brandLogo }) {
       {/* =========================
           GLASS LABEL
       ========================== */}
+
       {(hasLogo || hasName) && (
         <div
           className="
@@ -204,31 +268,32 @@ function ContentCard({ video, brandName, brandLogo }) {
           {/* =========================
               BRAND
           ========================== */}
+
           <div className="flex items-center justify-center min-w-0 w-full">
             {hasLogo ? (
               <img
                 src={brandLogo}
                 alt={brandName || "Brand logo"}
                 className="
-        max-w-[170px]
-        max-h-[50px]
-        w-auto
-        h-auto
-        object-contain
-        mx-auto
-      "
+                  max-w-[170px]
+                  max-h-[50px]
+                  w-auto
+                  h-auto
+                  object-contain
+                  mx-auto
+                "
               />
             ) : hasName ? (
               <span
                 className="
-        font-semibold
-        text-base
-        md:text-lg
-        lg:text-xl
-        text-white
-        text-center
-        truncate
-      "
+                  font-semibold
+                  text-base
+                  md:text-lg
+                  lg:text-xl
+                  text-white
+                  text-center
+                  truncate
+                "
               >
                 {brandName}
               </span>
@@ -238,6 +303,7 @@ function ContentCard({ video, brandName, brandLogo }) {
           {/* =========================
               ARROW
           ========================== */}
+
           <div
             className="
               h-9

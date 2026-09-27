@@ -1,6 +1,15 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Volume2, VolumeX } from "lucide-react";
 
-export default function WorkCard({ item }) {
+export default function WorkCard({
+  item,
+  activeVideoId,
+  onVideoActivate,
+  onRegisterVideo,
+}) {
+  const videoId = item._id;
+
+  const isActive = String(activeVideoId) === String(videoId);
+
   return (
     <div
       className="
@@ -15,14 +24,26 @@ export default function WorkCard({ item }) {
         bg-black
       "
     >
-      {/* VIDEO */}
+      {/* =====================================================
+          VIDEO
+      ===================================================== */}
+
       <video
+        ref={(video) => {
+          onRegisterVideo?.(videoId, video);
+        }}
         src={item.previewVideo}
         autoPlay
-        muted
+        muted={!isActive}
         loop
         playsInline
         preload="metadata"
+        data-portfolio-video
+        onClick={(e) => {
+          e.stopPropagation();
+
+          onVideoActivate?.(videoId);
+        }}
         className="
           absolute
           inset-0
@@ -31,6 +52,7 @@ export default function WorkCard({ item }) {
           min-w-full
           min-h-full
           object-cover
+          cursor-pointer
           transition-transform
           duration-700
           ease-out
@@ -38,19 +60,48 @@ export default function WorkCard({ item }) {
         "
       />
 
-      {/* OVERLAY */}
-      <div
-        className="
-          absolute
-          inset-0
-          bg-black/25
-          transition-all
-          duration-500
-          group-hover:bg-black/40
-        "
-      />
 
-      {/* INFO */}
+
+  
+
+      {/* =====================================================
+          AUDIO STATUS
+      ===================================================== */}
+
+      <div
+        className={`
+          pointer-events-none
+          absolute
+          right-5
+          top-5
+          z-30
+          flex
+          h-10
+          w-10
+          items-center
+          justify-center
+          rounded-full
+          border
+          border-white/10
+          bg-black/40
+          text-white
+          backdrop-blur-xl
+          transition-all
+          duration-300
+          ${
+            isActive
+              ? "scale-100 opacity-100"
+              : "scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100"
+          }
+        `}
+      >
+        {isActive ? <Volume2 size={18} /> : <VolumeX size={18} />}
+      </div>
+
+      {/* =====================================================
+          INFO
+      ===================================================== */}
+
       <div
         className="
           absolute
@@ -90,10 +141,7 @@ export default function WorkCard({ item }) {
           </p>
         </div>
 
-        <ArrowUpRight
-          size={26}
-          className="text-white shrink-0"
-        />
+        <ArrowUpRight size={26} className="shrink-0 text-white" />
       </div>
     </div>
   );
