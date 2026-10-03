@@ -21,7 +21,7 @@ function VideoPreview({ src, poster }) {
       playsInline
     />
   ) : (
-    <div className="grid aspect-video w-full place-items-center rounded-xl border border-dashed border-slate-700  text-sm text-slate-500">
+    <div className="grid aspect-video w-full place-items-center rounded-xl border border-dashed border-slate-700 text-sm text-slate-500">
       No video configured
     </div>
   );
@@ -37,30 +37,40 @@ const emptyForm = {
 
 export default function AdminVideos() {
   const [main, setMain] = useState(null);
+
+  // =====================================================
+  // MAIN LANDING VIDEO
+  // =====================================================
+
   const [mainForm, setMainForm] = useState({
-    videoUrl: "",
+    desktopVideoUrl: "",
+    mobileVideoUrl: "",
     thumbnailUrl: "",
   });
+
   const [items, setItems] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [editing, setEditing] = useState(null);
+
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  // =====================================================
+  // LOAD DATA
+  // =====================================================
 
   const load = async () => {
     try {
       setError("");
 
-      const [m, c] = await Promise.all([
-        getMainVideo(),
-        getCarousel(),
-      ]);
+      const [m, c] = await Promise.all([getMainVideo(), getCarousel()]);
 
       setMain(m.video);
 
       setMainForm({
-        videoUrl: m.video?.videoUrl || "",
+        desktopVideoUrl: m.video?.desktopVideoUrl || "",
+        mobileVideoUrl: m.video?.mobileVideoUrl || "",
         thumbnailUrl: m.video?.thumbnailUrl || "",
       });
 
@@ -74,6 +84,10 @@ export default function AdminVideos() {
     load();
   }, []);
 
+  // =====================================================
+  // MAIN LANDING VIDEO
+  // =====================================================
+
   const submitMain = async (e) => {
     e.preventDefault();
 
@@ -82,17 +96,65 @@ export default function AdminVideos() {
     setError("");
 
     try {
-      const result = await saveMainVideo(mainForm);
+      /*
+       * At least one video must exist.
+       *
+       * This allows:
+       * - only desktop
+       * - only mobile
+       * - both desktop + mobile
+       *
+       * Existing values are preserved if their field
+       * is left empty.
+       */
+
+      const desktopVideoUrl = mainForm.desktopVideoUrl.trim();
+
+      const mobileVideoUrl = mainForm.mobileVideoUrl.trim();
+
+      const existingDesktop = main?.desktopVideoUrl || "";
+
+      const existingMobile = main?.mobileVideoUrl || "";
+
+      const finalDesktop = desktopVideoUrl || existingDesktop;
+
+      const finalMobile = mobileVideoUrl || existingMobile;
+
+      if (!finalDesktop && !finalMobile) {
+        setError("Please provide at least a desktop or mobile video URL.");
+        setBusy(false);
+        return;
+      }
+
+      const payload = {
+        desktopVideoUrl: finalDesktop,
+        mobileVideoUrl: finalMobile,
+        thumbnailUrl: mainForm.thumbnailUrl.trim(),
+      };
+
+      const result = await saveMainVideo(payload);
 
       setMain(result.video);
-      setMessage("Main video updated successfully.");
-      alert(message)
+
+      setMainForm({
+        desktopVideoUrl: result.video?.desktopVideoUrl || "",
+        mobileVideoUrl: result.video?.mobileVideoUrl || "",
+        thumbnailUrl: result.video?.thumbnailUrl || "",
+      });
+
+      setMessage("Main landing video updated successfully.");
+
+      alert("Main landing video updated successfully.");
     } catch (e) {
       setError(e.message);
     } finally {
       setBusy(false);
     }
   };
+
+  // =====================================================
+  // CAROUSEL
+  // =====================================================
 
   const submit = async (e) => {
     e.preventDefault();
@@ -104,9 +166,11 @@ export default function AdminVideos() {
     try {
       if (editing) {
         await updateCarousel(editing._id, form);
+
         setMessage("Carousel video updated successfully.");
       } else {
         await addCarousel(form);
+
         setMessage("Carousel video added successfully.");
       }
 
@@ -144,12 +208,15 @@ export default function AdminVideos() {
   };
 
   const remove = async (id) => {
-    if (!window.confirm("Delete this carousel video?")) return;
+    if (!window.confirm("Delete this carousel video?")) {
+      return;
+    }
 
     try {
       await deleteCarousel(id);
 
       setMessage("Video deleted.");
+
       await load();
     } catch (e) {
       setError(e.message);
@@ -159,6 +226,7 @@ export default function AdminVideos() {
   const toggle = async (v) => {
     try {
       await statusCarousel(v._id, !v.isActive);
+
       await load();
     } catch (e) {
       setError(e.message);
@@ -167,9 +235,12 @@ export default function AdminVideos() {
 
   const move = async (index, dir) => {
     const next = [...items];
+
     const to = index + dir;
 
-    if (to < 0 || to >= next.length) return;
+    if (to < 0 || to >= next.length) {
+      return;
+    }
 
     [next[index], next[to]] = [next[to], next[index]];
 
@@ -179,19 +250,24 @@ export default function AdminVideos() {
       await reorderCarousel(
         next.map((x) => ({
           id: x._id,
-        }))
+        })),
       );
     } catch (e) {
       setError(e.message);
+
       await load();
     }
   };
 
+  // =====================================================
+  // UI
+  // =====================================================
+
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen">
       {/* Background */}
       <div className="pointer-events-none fixed inset-0 -z-0 overflow-hidden">
-        <div className="absolute left-[10%] top-0 h-[400px] w-[500px] rounded-full  blur-[120px]" />
+        <div className="absolute left-[10%] top-0 h-[400px] w-[500px] rounded-full blur-[120px]" />
       </div>
 
       {/* Header */}
@@ -206,25 +282,26 @@ export default function AdminVideos() {
           </h1>
 
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">
-            Manage the landing page hero and featured video carousel using
-            video URLs.
+            Manage the landing page hero and featured video carousel using video
+            URLs.
           </p>
         </div>
       </header>
 
       <main className="relative mx-auto max-w-[1400px] px-3 pb-10 sm:px-6 lg:px-8">
-        {/* Notice */}
+        {/* =====================================================
+            NOTICE
+        ===================================================== */}
+
         {(message || error) && (
           <div
             className={`mt-5 flex items-start justify-between gap-4 rounded-xl border px-4 py-3 text-sm ${
               error
                 ? "border-red-900/70 bg-red-950/40 text-red-200"
-                : "border-indigo-900/70  text-indigo-200"
+                : "border-indigo-900/70 text-indigo-200"
             }`}
           >
-            <span className="break-words">
-              {error || message}
-            </span>
+            <span className="break-words">{error || message}</span>
 
             <button
               type="button"
@@ -239,84 +316,183 @@ export default function AdminVideos() {
           </div>
         )}
 
-        {/* Main Video */}
-        <section className="mt-6 rounded-2xl border border-slate-800 b p-4 shadow-2xl shadow-black/20 sm:p-6 lg:mt-7">
+        {/* =====================================================
+            MAIN LANDING VIDEO
+        ===================================================== */}
+
+        <section className="mt-6 rounded-2xl border border-slate-800 p-4 shadow-2xl shadow-black/20 sm:p-6 lg:mt-7">
+          {/* Heading */}
           <div className="mb-6">
             <h2 className="text-lg font-bold text-white sm:text-xl">
               Main landing video
             </h2>
 
             <p className="mt-1 text-sm leading-6 text-slate-400">
-              Enter the URL of the video that should play on the main landing
-              screen.
+              Configure desktop and mobile videos independently. You can update
+              either one without changing the other.
             </p>
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr] lg:gap-6">
-            {/* Preview */}
-            <div className="min-w-0">
+          {/* =====================================================
+              PREVIEWS
+          ===================================================== */}
+
+          <div className="mb-6 grid grid-cols-1 gap-5 md:grid-cols-2">
+            {/* Desktop Preview */}
+            <div className="rounded-2xl border border-slate-800 p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-white">
+                  Desktop Preview
+                </h3>
+
+                {main?.desktopVideoUrl ? (
+                  <span className="rounded-full bg-emerald-950/70 px-2.5 py-1 text-[10px] font-semibold text-emerald-400">
+                    Configured
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-slate-800 px-2.5 py-1 text-[10px] font-semibold text-slate-500">
+                    Not configured
+                  </span>
+                )}
+              </div>
+
               <VideoPreview
-                src={main?.videoUrl}
+                src={main?.desktopVideoUrl}
                 poster={main?.thumbnailUrl}
               />
             </div>
 
-            {/* Main form */}
-            <form
-              onSubmit={submitMain}
-              className="flex flex-col gap-5 rounded-2xl border border-slate-800 p-4 sm:p-5"
-            >
-              <label className="flex flex-col gap-2 text-sm font-medium text-slate-300">
-                Video URL
+            {/* Mobile Preview */}
+            <div className="rounded-2xl border border-slate-800 p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-white">
+                  Mobile Preview
+                </h3>
 
-                <input
-                  required
-                  type="url"
-                  placeholder="https://example.com/main-video.mp4"
-                  value={mainForm.videoUrl}
-                  onChange={(e) =>
-                    setMainForm({
-                      ...mainForm,
-                      videoUrl: e.target.value,
-                    })
-                  }
-                  className="w-full rounded-xl border border-slate-700  px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-                />
-              </label>
+                {main?.mobileVideoUrl ? (
+                  <span className="rounded-full bg-emerald-950/70 px-2.5 py-1 text-[10px] font-semibold text-emerald-400">
+                    Configured
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-slate-800 px-2.5 py-1 text-[10px] font-semibold text-slate-500">
+                    Not configured
+                  </span>
+                )}
+              </div>
 
+              <VideoPreview
+                src={main?.mobileVideoUrl}
+                poster={main?.thumbnailUrl}
+              />
+            </div>
+          </div>
+
+          {/* =====================================================
+              MAIN VIDEO FORM
+          ===================================================== */}
+
+          <form
+            onSubmit={submitMain}
+            className="rounded-2xl border border-slate-800 p-4 sm:p-5"
+          >
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              {/* Desktop Video URL */}
               <label className="flex flex-col gap-2 text-sm font-medium text-slate-300">
-                Thumbnail URL
-                <span className="text-xs font-normal text-slate-500">
-                  Optional
+                <span className="flex items-center justify-between">
+                  <span>Desktop Video URL</span>
+
+                  <span className="text-xs font-normal text-slate-500">
+                    Optional
+                  </span>
                 </span>
 
                 <input
                   type="url"
-                  placeholder="https://example.com/main-thumb.jpg"
-                  value={mainForm.thumbnailUrl}
+                  placeholder="https://example.com/desktop-video.mp4"
+                  value={mainForm.desktopVideoUrl}
                   onChange={(e) =>
                     setMainForm({
                       ...mainForm,
-                      thumbnailUrl: e.target.value,
+                      desktopVideoUrl: e.target.value,
                     })
                   }
-                  className="w-full rounded-xl border border-slate-700  px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full rounded-xl border border-slate-700 px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                 />
+
+                <span className="text-xs text-slate-500">
+                  Leave unchanged to keep the existing desktop video.
+                </span>
               </label>
 
-              <button
-                type="submit"
-                disabled={busy}
-                className="mt-auto w-full rounded-xl  px-4 py-3 text-sm font-semibold text-white transition bg-indigo-700 hover:bg-indigo-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {busy ? "Saving…" : "Save Main Video"}
-              </button>
-            </form>
-          </div>
+              {/* Mobile Video URL */}
+              <label className="flex flex-col gap-2 text-sm font-medium text-slate-300">
+                <span className="flex items-center justify-between">
+                  <span>Mobile Video URL</span>
+
+                  <span className="text-xs font-normal text-slate-500">
+                    Optional
+                  </span>
+                </span>
+
+                <input
+                  type="url"
+                  placeholder="https://example.com/mobile-video.mp4"
+                  value={mainForm.mobileVideoUrl}
+                  onChange={(e) =>
+                    setMainForm({
+                      ...mainForm,
+                      mobileVideoUrl: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-xl border border-slate-700 px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                />
+
+                <span className="text-xs text-slate-500">
+                  Leave unchanged to keep the existing mobile video.
+                </span>
+              </label>
+            </div>
+
+            {/* Thumbnail */}
+            <label className="mt-5 flex flex-col gap-2 text-sm font-medium text-slate-300">
+              <span className="flex items-center gap-2">
+                <span>Thumbnail URL</span>
+
+                <span className="text-xs font-normal text-slate-500">
+                  Optional
+                </span>
+              </span>
+
+              <input
+                type="url"
+                placeholder="https://example.com/main-thumb.jpg"
+                value={mainForm.thumbnailUrl}
+                onChange={(e) =>
+                  setMainForm({
+                    ...mainForm,
+                    thumbnailUrl: e.target.value,
+                  })
+                }
+                className="w-full rounded-xl border border-slate-700 px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+              />
+            </label>
+
+            {/* Save */}
+            <button
+              type="submit"
+              disabled={busy}
+              className="mt-5 w-full rounded-xl bg-indigo-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {busy ? "Saving…" : "Save Main Video"}
+            </button>
+          </form>
         </section>
 
-        {/* Carousel */}
-        <section className="mt-6 rounded-2xl border border-slate-800  p-4 shadow-2xl shadow-black/20 sm:p-6 lg:mt-7">
+        {/* =====================================================
+            CAROUSEL
+        ===================================================== */}
+
+        <section className="mt-6 rounded-2xl border border-slate-800 p-4 shadow-2xl shadow-black/20 sm:p-6 lg:mt-7">
           <div className="mb-6">
             <h2 className="text-lg font-bold text-white sm:text-xl">
               Landing page carousel
@@ -331,13 +507,11 @@ export default function AdminVideos() {
           {/* Add/Edit Form */}
           <form
             onSubmit={submit}
-            className="mb-6 rounded-2xl border border-slate-800  p-4 sm:p-5"
+            className="mb-6 rounded-2xl border border-slate-800 p-4 sm:p-5"
           >
             <div className="mb-5 flex flex-col gap-1">
               <h3 className="text-base font-bold text-white">
-                {editing
-                  ? "Edit carousel video"
-                  : "Add carousel video"}
+                {editing ? "Edit carousel video" : "Add carousel video"}
               </h3>
 
               <p className="text-xs text-slate-500">
@@ -349,7 +523,6 @@ export default function AdminVideos() {
               {/* Title */}
               <label className="flex flex-col gap-2 text-sm font-medium text-slate-300">
                 Title
-
                 <input
                   value={form.title}
                   onChange={(e) =>
@@ -358,14 +531,13 @@ export default function AdminVideos() {
                       title: e.target.value,
                     })
                   }
-                  className="w-full rounded-xl border border-slate-700  px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full rounded-xl border border-slate-700 px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                 />
               </label>
 
               {/* Video URL */}
               <label className="flex flex-col gap-2 text-sm font-medium text-slate-300">
                 Video URL
-
                 <input
                   required
                   type="url"
@@ -377,14 +549,13 @@ export default function AdminVideos() {
                       videoUrl: e.target.value,
                     })
                   }
-                  className="w-full rounded-xl border border-slate-700  px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full rounded-xl border border-slate-700 px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                 />
               </label>
 
               {/* Description */}
               <label className="flex flex-col gap-2 text-sm font-medium text-slate-300 md:col-span-2">
                 Description
-
                 <textarea
                   value={form.description}
                   onChange={(e) =>
@@ -393,7 +564,7 @@ export default function AdminVideos() {
                       description: e.target.value,
                     })
                   }
-                  className="min-h-[110px] w-full resize-y rounded-xl border border-slate-700  px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  className="min-h-[110px] w-full resize-y rounded-xl border border-slate-700 px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                 />
               </label>
 
@@ -416,7 +587,7 @@ export default function AdminVideos() {
                       thumbnailUrl: e.target.value,
                     })
                   }
-                  className="w-full rounded-xl border border-slate-700  px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full rounded-xl border border-slate-700 px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                 />
               </label>
             </div>
@@ -444,7 +615,7 @@ export default function AdminVideos() {
                   <button
                     type="button"
                     onClick={clearForm}
-                    className="w-full rounded-xl  px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-700 sm:w-auto"
+                    className="w-full rounded-xl px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-700 sm:w-auto"
                   >
                     Cancel Edit
                   </button>
@@ -455,11 +626,7 @@ export default function AdminVideos() {
                   disabled={busy}
                   className="w-full rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 >
-                  {busy
-                    ? "Saving…"
-                    : editing
-                    ? "Save Changes"
-                    : "Add Video"}
+                  {busy ? "Saving…" : editing ? "Save Changes" : "Add Video"}
                 </button>
               </div>
             </div>
@@ -469,14 +636,11 @@ export default function AdminVideos() {
           <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
             {items.map((v, i) => (
               <article
-                className="overflow-hidden rounded-2xl border border-slate-800  transition hover:border-slate-700 hover:shadow-xl hover:shadow-black/20"
+                className="overflow-hidden rounded-2xl border border-slate-800 transition hover:border-slate-700 hover:shadow-xl hover:shadow-black/20"
                 key={v._id}
               >
                 {/* Video */}
-                <VideoPreview
-                  src={v.videoUrl}
-                  poster={v.thumbnailUrl}
-                />
+                <VideoPreview src={v.videoUrl} poster={v.thumbnailUrl} />
 
                 <div className="p-4 sm:p-5">
                   {/* Title + status */}
@@ -489,7 +653,7 @@ export default function AdminVideos() {
                       className={`w-fit shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                         v.isActive
                           ? "bg-emerald-950/70 text-emerald-400"
-                          : " text-slate-400"
+                          : "text-slate-400"
                       }`}
                     >
                       {v.isActive ? "Active" : "Hidden"}
@@ -504,7 +668,7 @@ export default function AdminVideos() {
                   {/* URL */}
                   <div
                     title={v.videoUrl}
-                    className="my-3 overflow-hidden text-ellipsis whitespace-nowrap rounded-lg  px-3 py-2 text-[11px] text-slate-600"
+                    className="my-3 overflow-hidden text-ellipsis whitespace-nowrap rounded-lg px-3 py-2 text-[11px] text-slate-600"
                   >
                     {v.videoUrl}
                   </div>
@@ -515,7 +679,7 @@ export default function AdminVideos() {
                       type="button"
                       onClick={() => move(i, -1)}
                       disabled={i === 0}
-                      className="rounded-lg  px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                      className="rounded-lg px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
                       title="Move up"
                     >
                       ↑
@@ -525,7 +689,7 @@ export default function AdminVideos() {
                       type="button"
                       onClick={() => move(i, 1)}
                       disabled={i === items.length - 1}
-                      className="rounded-lg  px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                      className="rounded-lg px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
                       title="Move down"
                     >
                       ↓
@@ -534,7 +698,7 @@ export default function AdminVideos() {
                     <button
                       type="button"
                       onClick={() => toggle(v)}
-                      className="rounded-lg  px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-slate-700"
+                      className="rounded-lg px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-slate-700"
                     >
                       {v.isActive ? "Hide" : "Show"}
                     </button>
@@ -542,7 +706,7 @@ export default function AdminVideos() {
                     <button
                       type="button"
                       onClick={() => edit(v)}
-                      className="rounded-lg  px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-slate-700"
+                      className="rounded-lg px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-slate-700"
                     >
                       Edit
                     </button>

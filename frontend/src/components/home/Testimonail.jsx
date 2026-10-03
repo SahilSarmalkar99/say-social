@@ -22,7 +22,7 @@ export default function Testimonial() {
 
         const response = await getTestimonials();
 
-        console.log("Testimonials API:", response.data);
+        // console.log("Testimonials API:", response.data);
 
         setTestimonials(response.data.data || []);
       } catch (error) {

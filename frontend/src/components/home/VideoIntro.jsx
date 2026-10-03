@@ -3,13 +3,34 @@ import { getMainVideo } from "../../api/videoApi";
 
 const VideoIntro = ({ sectionRef, videoRef, overlayRef }) => {
   const [mainVideo, setMainVideo] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
 
+  // Detect mobile viewport
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+
+    const handleChange = (event) => {
+      setIsMobile(event.matches);
+    };
+
+    // Initial value
+    setIsMobile(mediaQuery.matches);
+
+    // Listen for resize / breakpoint changes
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, []);
+
+  // Fetch main video
   useEffect(() => {
     const fetchMainVideo = async () => {
       try {
         const data = await getMainVideo();
 
-        console.log("MAIN VIDEO:", data);
+        // console.log("MAIN VIDEO:", data);
 
         setMainVideo(data.video);
       } catch (error) {
@@ -19,6 +40,11 @@ const VideoIntro = ({ sectionRef, videoRef, overlayRef }) => {
 
     fetchMainVideo();
   }, []);
+
+  // Select video according to device
+  const videoUrl = isMobile
+    ? mainVideo?.mobileVideoUrl
+    : mainVideo?.videoUrl;
 
   return (
     <section
@@ -43,7 +69,6 @@ const VideoIntro = ({ sectionRef, videoRef, overlayRef }) => {
           autoPlay
           muted
           loop
-          loading="lazy"
           playsInline
           preload="auto"
           className="
@@ -56,8 +81,11 @@ const VideoIntro = ({ sectionRef, videoRef, overlayRef }) => {
             will-change-transform
           "
         >
-          {mainVideo?.videoUrl && (
-            <source src={mainVideo.videoUrl} type="video/mp4" />
+          {videoUrl && (
+            <source
+              src={videoUrl}
+              type="video/mp4"
+            />
           )}
         </video>
 

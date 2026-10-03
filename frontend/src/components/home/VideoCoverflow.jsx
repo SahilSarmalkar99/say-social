@@ -286,7 +286,7 @@ export default function VideoCoverflow() {
           -translate-x-1/2
           -translate-y-1/2
           rounded-full
-          bg-purple-600/10
+         
           blur-[180px]
           md:h-[900px]
           md:w-[900px]
@@ -347,7 +347,7 @@ export default function VideoCoverflow() {
         className="
           fade-card
           relative
-          mt-40
+          mt-20
           h-[420px]
           w-full
           perspective-[2500px]

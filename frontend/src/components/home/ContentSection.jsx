@@ -8,11 +8,15 @@ export default function ContentSection() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Only used for controlling which video has audio
+  // Controls which video currently has audio
   const [activeVideo, setActiveVideo] = useState(null);
 
   const textReveal = useTextReveal();
   const fadeIn = useFadeUpCards();
+
+  // =========================================
+  // FETCH CONTENT
+  // =========================================
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -20,10 +24,10 @@ export default function ContentSection() {
         const res = await HomeAPI.getAll();
 
         const section = res.data.find(
-          (item) => item.section === "content-creating",
+          (item) => item.section === "content-creating"
         );
 
-        console.log(section);
+        // console.log(section);
 
         setVideos(section?.videos || []);
       } catch (err) {
@@ -36,7 +40,10 @@ export default function ContentSection() {
     fetchContent();
   }, []);
 
-  // Stop audio when clicking outside any video card
+  // =========================================
+  // CLOSE ACTIVE VIDEO WHEN CLICKING OUTSIDE
+  // =========================================
+
   useEffect(() => {
     const handleOutsideClick = (event) => {
       if (!event.target.closest("[data-content-video]")) {
@@ -51,23 +58,50 @@ export default function ContentSection() {
     };
   }, []);
 
+  // =========================================
+  // VIDEO CLICK
+  // =========================================
+
   const handleVideoClick = (videoId) => {
-    setActiveVideo((current) => (current === videoId ? null : videoId));
+    setActiveVideo((current) =>
+      current === videoId ? null : videoId
+    );
   };
 
+  // =========================================
+  // SPLIT VIDEOS INTO ROWS
+  // =========================================
+
   const topRow = videos.slice(0, 4);
-  const bottomRow = videos.slice(4);
+  const bottomRow = videos.slice(4, 8);
+
+  // =========================================
+  // LOADING
+  // =========================================
 
   if (loading) {
     return (
-      <section className="py-24 text-center text-white">Loading...</section>
+      <section className="py-24 text-center text-white">
+        Loading...
+      </section>
     );
   }
 
+  // =========================================
+  // MAIN SECTION
+  // =========================================
+
   return (
-    <section ref={fadeIn} className="py-15 md:py-24 px-4 text-white">
+    <section
+      ref={fadeIn}
+      className="py-15 md:py-24 px-4 text-white"
+    >
       <div className="max-w-7xl mx-auto">
-        {/* Heading */}
+
+        {/* =====================================
+            HEADING
+        ====================================== */}
+
         <h2
           ref={textReveal}
           className="
@@ -77,6 +111,7 @@ export default function ContentSection() {
             lg:text-[72px]
             mb-16
             uppercase
+            leading-tight
           "
         >
           Creating Content That Feels Real,
@@ -84,9 +119,25 @@ export default function ContentSection() {
           Relatable And Impactful.
         </h2>
 
-        {/* TOP ROW */}
-        <div className="fade-card w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 justify-items-center">
-          {topRow.slice(0, 4).map((item, index) => {
+        {/* =====================================
+            TOP ROW
+            Mobile: 2 columns
+            Desktop: 4 columns
+        ====================================== */}
+
+        <div
+          className="
+            fade-card
+            w-full
+            grid
+            grid-cols-2
+            lg:grid-cols-4
+            gap-4
+            md:gap-6
+            mb-6
+          "
+        >
+          {topRow.map((item, index) => {
             const videoId = `top-${index}-${item.url}`;
 
             return (
@@ -103,24 +154,41 @@ export default function ContentSection() {
           })}
         </div>
 
-        {/* BOTTOM ROW */}
-        <div className="fade-card w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
-          {bottomRow.slice(0, 4).map((item, index) => {
-            const videoId = `bottom-${index}-${item.url}`;
+        {/* =====================================
+            BOTTOM ROW
+            Mobile: 2 columns
+            Desktop: 4 columns
+        ====================================== */}
 
-            return (
-              <ContentCard
-                key={item.url || index}
-                video={item.url}
-                brandName={item.company?.name}
-                brandLogo={item.logoUrl}
-                videoId={videoId}
-                isActive={activeVideo === videoId}
-                onVideoClick={handleVideoClick}
-              />
-            );
-          })}
-        </div>
+        {bottomRow.length > 0 && (
+          <div
+            className="
+              fade-card
+              w-full
+              grid
+              grid-cols-2
+              lg:grid-cols-4
+              gap-4
+              md:gap-6
+            "
+          >
+            {bottomRow.map((item, index) => {
+              const videoId = `bottom-${index}-${item.url}`;
+
+              return (
+                <ContentCard
+                  key={item.url || index}
+                  video={item.url}
+                  brandName={item.company?.name}
+                  brandLogo={item.logoUrl}
+                  videoId={videoId}
+                  isActive={activeVideo === videoId}
+                  onVideoClick={handleVideoClick}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -140,32 +208,43 @@ function ContentCard({
 }) {
   const videoRef = useRef(null);
 
-  /*
-    Priority:
-
-    1. Logo if available
-    2. Name if logo is not available
-    3. Nothing if both are unavailable
-  */
+  // =========================================
+  // BRAND DATA
+  // =========================================
 
   const hasLogo =
-    brandLogo && typeof brandLogo === "string" && brandLogo.trim() !== "";
+    brandLogo &&
+    typeof brandLogo === "string" &&
+    brandLogo.trim() !== "";
 
   const hasName =
-    brandName && typeof brandName === "string" && brandName.trim() !== "";
+    brandName &&
+    typeof brandName === "string" &&
+    brandName.trim() !== "";
 
-  // ONLY controls audio.
-  // Does not touch your GSAP animations.
+  // =========================================
+  // VIDEO AUDIO CONTROL
+  // =========================================
+
   useEffect(() => {
     if (!videoRef.current) return;
 
     videoRef.current.muted = !isActive;
   }, [isActive]);
 
+  // =========================================
+  // CARD CLICK
+  // =========================================
+
   const handleClick = (event) => {
     event.stopPropagation();
+
     onVideoClick(videoId);
   };
+
+  // =========================================
+  // CARD
+  // =========================================
 
   return (
     <div
@@ -173,26 +252,28 @@ function ContentCard({
       onClick={handleClick}
       className="
         fade-card
+
         relative
         overflow-hidden
         rounded-[28px]
         group
+        cursor-pointer
 
-        w-[220px]
-        h-[330px]
+        w-full
 
-        md:w-[230px]
-        md:h-[340px]
-
-        lg:w-[270px]
+        h-[280px]
+        sm:h-[320px]
+        md:h-[380px]
         lg:h-[450px]
 
-        cursor-pointer
+        transition-transform
+        duration-500
+        ease-out
       "
     >
-      {/* =========================
+      {/* =====================================
           VIDEO
-      ========================== */}
+      ====================================== */}
 
       <video
         ref={videoRef}
@@ -203,51 +284,71 @@ function ContentCard({
         playsInline
         preload="auto"
         className="
+          absolute
+          inset-0
+
           w-full
           h-full
-          object-contain
+
+          object-cover
+
           transition-transform
           duration-700
           ease-out
+
           group-hover:scale-110
         "
       />
 
-      {/* =========================
+      {/* =====================================
           GRADIENT
-      ========================== */}
+      ====================================== */}
 
       <div
         className="
           absolute
           inset-0
+
           bg-gradient-to-t
-          from-black/50
+          from-black/60
           via-black/10
           to-transparent
+
+          pointer-events-none
         "
       />
 
-      {/* =========================
-          GLASS LABEL
-      ========================== */}
+      {/* =====================================
+          GLASS BRAND LABEL
+      ====================================== */}
 
       {(hasLogo || hasName) && (
         <div
           className="
             absolute
-            left-4
-            right-4
-            bottom-4
+
+            left-3
+            right-3
+            bottom-3
+
+            sm:left-4
+            sm:right-4
+            sm:bottom-4
 
             flex
             items-center
             justify-between
 
-            px-5
-            py-4
+            gap-3
+
+            px-4
+            py-3
+
+            sm:px-5
+            sm:py-4
 
             rounded-2xl
+
             border
             border-white/10
 
@@ -265,20 +366,38 @@ function ContentCard({
             group-hover:translate-y-0
           "
         >
-          {/* =========================
+          {/* =================================
               BRAND
-          ========================== */}
+          ================================== */}
 
-          <div className="flex items-center justify-center min-w-0 w-full">
+          <div
+            className="
+              flex
+              items-center
+              justify-center
+
+              min-w-0
+              flex-1
+            "
+          >
             {hasLogo ? (
               <img
                 src={brandLogo}
                 alt={brandName || "Brand logo"}
                 className="
-                  max-w-[170px]
-                  max-h-[50px]
+                  max-w-[110px]
+                  sm:max-w-[140px]
+                  md:max-w-[160px]
+                  lg:max-w-[170px]
+
+                  max-h-[35px]
+                  sm:max-h-[40px]
+                  md:max-h-[45px]
+                  lg:max-h-[50px]
+
                   w-auto
                   h-auto
+
                   object-contain
                   mx-auto
                 "
@@ -287,9 +406,12 @@ function ContentCard({
               <span
                 className="
                   font-semibold
-                  text-base
+
+                  text-sm
+                  sm:text-base
                   md:text-lg
                   lg:text-xl
+
                   text-white
                   text-center
                   truncate
@@ -300,14 +422,18 @@ function ContentCard({
             ) : null}
           </div>
 
-          {/* =========================
+          {/* =================================
               ARROW
-          ========================== */}
+          ================================== */}
 
           <div
             className="
-              h-9
-              w-9
+              h-8
+              w-8
+
+              sm:h-9
+              sm:w-9
+
               rounded-full
 
               bg-white

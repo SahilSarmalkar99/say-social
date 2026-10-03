@@ -21,11 +21,11 @@ const TrustCarousel = () => {
 
         const response = await getLogos();
 
-        console.log("Logos API:", response.data);
+        // console.log("Logos API:", response.data);
 
         const data = response.data?.data;
 
-        console.log(data)
+        // console.log(data)
 
         setTopLogos(data?.top || []);
         setBottomLogos(data?.bottom || []);

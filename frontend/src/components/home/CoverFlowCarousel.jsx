@@ -72,7 +72,7 @@ export default function Carousel() {
       try {
         const data = await getCarouselVideos();
 
-        console.log("Carousel videos:", data);
+        // console.log("Carousel videos:", data);
 
         setVideos(data.videos || []);
       } catch (error) {
