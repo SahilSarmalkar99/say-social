@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Menu, X, ArrowUpRight } from "lucide-react";
-import {getSiteSettings} from "../api/site-settings";
+import { getSiteSettings } from "../api/site-settings";
 
 export default function Navbar({ visible = true }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -16,6 +16,9 @@ export default function Navbar({ visible = true }) {
   const phoneLink = `tel:+91${phoneNumber}`;
   const whatsappLink = `https://wa.me/91${phoneNumber}`;
 
+  // =========================
+  // FETCH LOGO
+  // =========================
   useEffect(() => {
     const fetchSiteSettings = async () => {
       try {
@@ -29,6 +32,9 @@ export default function Navbar({ visible = true }) {
     fetchSiteSettings();
   }, []);
 
+  // =========================
+  // HANDLE SCROLL
+  // =========================
   useEffect(() => {
     const handleScroll = () => {
       const current = window.scrollY;
@@ -53,6 +59,25 @@ export default function Navbar({ visible = true }) {
     };
   }, []);
 
+  // =========================
+  // LOCK BODY SCROLL
+  // WHEN MOBILE MENU IS OPEN
+  // =========================
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  // =========================
+  // NAVIGATION LINKS
+  // =========================
   const navLinks = [
     {
       name: "Work",
@@ -80,9 +105,9 @@ export default function Navbar({ visible = true }) {
 
   return (
     <>
-      {/* =========================
-          NAVBAR
-      ========================== */}
+      {/* =====================================================
+          DESKTOP / NORMAL NAVBAR
+      ====================================================== */}
       <header
         className={`
           fixed
@@ -94,10 +119,17 @@ export default function Navbar({ visible = true }) {
           transition-all
           duration-700
           ease-out
+
           ${
             shouldShow
               ? "translate-y-0 opacity-100"
               : "-translate-y-full opacity-0 pointer-events-none"
+          }
+
+          ${
+            mobileOpen
+              ? "opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto"
+              : ""
           }
         `}
       >
@@ -117,7 +149,9 @@ export default function Navbar({ visible = true }) {
             "
           />
 
-          {/* Main Navbar */}
+          {/* =================================================
+              MAIN NAVBAR
+          ================================================= */}
           <div
             className={`
               relative
@@ -131,6 +165,7 @@ export default function Navbar({ visible = true }) {
               transition-all
               duration-500
               overflow-hidden
+
               ${scrolled ? "scale-[0.98]" : "scale-100"}
             `}
           >
@@ -158,9 +193,9 @@ export default function Navbar({ visible = true }) {
                 lg:px-8
               "
             >
-              {/* =========================
+              {/* =================================================
                   LOGO
-              ========================== */}
+              ================================================= */}
               <div className="justify-self-start flex items-center">
                 <NavLink to="/">
                   <div className="flex items-center group cursor-pointer">
@@ -186,9 +221,9 @@ export default function Navbar({ visible = true }) {
                 </NavLink>
               </div>
 
-              {/* =========================
+              {/* =================================================
                   DESKTOP NAVIGATION
-              ========================== */}
+              ================================================= */}
               <nav
                 className="
                   hidden
@@ -199,7 +234,11 @@ export default function Navbar({ visible = true }) {
                 "
               >
                 {navLinks.map((link) => (
-                  <NavLink key={link.name} to={link.path} className="group">
+                  <NavLink
+                    key={link.name}
+                    to={link.path}
+                    className="group"
+                  >
                     {({ isActive }) => (
                       <div
                         className={`
@@ -210,7 +249,12 @@ export default function Navbar({ visible = true }) {
                           text-[12px]
                           tracking-[0.25em]
                           font-medium
-                          ${isActive ? "text-white" : "text-white/55"}
+
+                          ${
+                            isActive
+                              ? "text-white"
+                              : "text-white/55"
+                          }
                         `}
                       >
                         {/* Normal Text */}
@@ -245,10 +289,14 @@ export default function Navbar({ visible = true }) {
                 ))}
               </nav>
 
-              {/* =========================
-                  DESKTOP CTA
-              ========================== */}
+              {/* =================================================
+                  RIGHT SIDE
+              ================================================= */}
               <div className="justify-self-end">
+
+                {/* =================================================
+                    DESKTOP CTA
+                ================================================= */}
                 <a
                   href={phoneLink}
                   className="
@@ -307,21 +355,37 @@ export default function Navbar({ visible = true }) {
                   </div>
 
                   {/* Text */}
-                  <span className="relative">Book A Call</span>
+                  <span className="relative">
+                    Book A Call
+                  </span>
                 </a>
 
-                {/* =========================
-                    MOBILE MENU BUTTON
-                ========================== */}
+                {/* =================================================
+                    MOBILE HAMBURGER
+                ================================================= */}
                 <button
-                  onClick={() => setMobileOpen(!mobileOpen)}
+                  onClick={() => setMobileOpen(true)}
                   className="
                     md:hidden
+                    w-12
+                    h-12
+                    rounded-full
+                    border
+                    border-white/10
+                    bg-white/[0.05]
+                    backdrop-blur-xl
                     text-white
+                    flex
+                    items-center
+                    justify-center
+                    transition-all
+                    duration-300
+                    hover:bg-white/10
                   "
-                  aria-label="Toggle menu"
+                  aria-label="Open menu"
+                  aria-expanded={mobileOpen}
                 >
-                  {mobileOpen ? <X size={30} /> : <Menu size={30} />}
+                  <Menu size={28} />
                 </button>
               </div>
             </div>
@@ -329,74 +393,202 @@ export default function Navbar({ visible = true }) {
         </div>
       </header>
 
-      {/* =========================
-          MOBILE MENU
-      ========================== */}
+      {/* =====================================================
+          FULLSCREEN MOBILE MENU
+      ====================================================== */}
       <div
         className={`
           fixed
           inset-0
-          z-[9998]
+          z-[10000]
           md:hidden
-          bg-black/90
-          backdrop-blur-3xl
+          bg-black
+          overflow-hidden
           transition-all
           duration-500
-          ${mobileOpen ? "opacity-100 visible" : "opacity-0 invisible"}
+
+          ${
+            mobileOpen
+              ? "opacity-100 visible"
+              : "opacity-0 invisible pointer-events-none"
+          }
         `}
       >
+        {/* =================================================
+            MOBILE MENU HEADER
+        ================================================= */}
         <div
           className="
+            absolute
+            top-0
+            left-0
+            w-full
+            px-5
+            sm:px-7
+            py-5
+            flex
+            items-center
+            justify-between
+          "
+        >
+          {/* Logo */}
+          <NavLink
+            to="/"
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center"
+          >
+            {logoUrl && (
+              <img
+                src={logoUrl}
+                alt="SaySocial"
+                className="
+                  h-10
+                  sm:h-11
+                  w-auto
+                  max-w-[170px]
+                  object-contain
+                "
+              />
+            )}
+          </NavLink>
+
+          {/* Close Button */}
+         <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setMobileOpen(false);
+  }}
+  className="
+    relative
+    z-[10001]
+    w-12
+    h-12
+    rounded-full
+    border
+    border-white/10
+    bg-white/[0.06]
+    backdrop-blur-xl
+    text-white
+    flex
+    items-center
+    justify-center
+    cursor-pointer
+    transition-all
+    duration-300
+    hover:bg-white/10
+    hover:rotate-90
+  "
+  aria-label="Close menu"
+>
+  <X size={26} />
+</button>
+        </div>
+
+        {/* =================================================
+            MOBILE NAVIGATION
+        ================================================= */}
+        <div
+          className="
+            relative
             h-full
+            min-h-screen
             flex
             flex-col
             justify-center
             items-center
-            gap-10
+            gap-6
+            sm:gap-7
+            px-6
           "
         >
-          {/* Mobile Navigation Links */}
-          {navLinks.map((link) => (
+          {/* Decorative Glow */}
+          <div
+            className="
+              absolute
+              top-1/2
+              left-1/2
+              -translate-x-1/2
+              -translate-y-1/2
+              w-[350px]
+              h-[350px]
+              rounded-full
+              bg-purple-600/10
+              blur-[100px]
+              pointer-events-none
+            "
+          />
+
+          {/* Navigation Links */}
+          {navLinks.map((link, index) => (
             <NavLink
               key={link.name}
               to={link.path}
               onClick={() => setMobileOpen(false)}
-              className="
+              className={`
+                relative
+                z-10
                 text-4xl
+                sm:text-5xl
                 font-black
                 tracking-tight
                 text-white/70
                 hover:text-white
                 transition-all
-              "
+                duration-300
+                ${
+                  mobileOpen
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-5 opacity-0"
+                }
+              `}
+              style={{
+                transitionDelay: mobileOpen
+                  ? `${index * 60}ms`
+                  : "0ms",
+              }}
             >
               {link.name}
             </NavLink>
           ))}
 
-          {/* =========================
+          {/* =================================================
               MOBILE WHATSAPP BUTTON
-          ========================== */}
+          ================================================= */}
           <a
             href={whatsappLink}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setMobileOpen(false)}
-            className="
-              mt-8
+            className={`
+              relative
+              z-10
+              mt-5
               flex
               items-center
               gap-4
-              px-6
+              px-7
               py-4
               rounded-full
               bg-white
               text-black
               font-semibold
               transition-all
-              duration-300
+              duration-500
               hover:scale-105
-            "
+
+              ${
+                mobileOpen
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-5 opacity-0"
+              }
+            `}
+            style={{
+              transitionDelay: mobileOpen
+                ? `${navLinks.length * 60 + 100}ms`
+                : "0ms",
+            }}
           >
             <span>WhatsApp Us</span>
 

@@ -4,6 +4,8 @@ import { useEffect as useReactEffect } from "react";
 import useTextReveal from "../../hooks/useTextReveal";
 import useFadeUpCards from "../../hooks/useFadeIn";
 import HomeAPI from "../../api/home.api";
+import { Link } from "react-router-dom";
+
 
 const filterOrder = [
   "Production",
@@ -203,15 +205,17 @@ export default function WorkResults() {
 
         {/* View All */}
         <div className="fade-card flex justify-center mt-12">
-          <button className="group flex items-center gap-3 px-8 md:px-10 py-3 md:py-4 rounded-full bg-white text-black font-medium transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.25)]">
-            View all our work
+  <Link to="/work">
+    <button className="group flex items-center gap-3 px-8 md:px-10 py-3 md:py-4 rounded-full bg-white text-black font-medium transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.25)]">
+      View all our work
 
-            <ArrowUpRight
-              size={18}
-              className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
-            />
-          </button>
-        </div>
+      <ArrowUpRight
+        size={18}
+        className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+      />
+    </button>
+  </Link>
+</div>
       </div>
     </section>
   );
