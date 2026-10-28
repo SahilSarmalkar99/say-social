@@ -3,40 +3,41 @@ export const workData = {
     {
       id: 1,
       title: "YouTube Videos",
-      video: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367587/yt1_qrwmdw.mp4",
+      video: "https://res.cloudinary.com/gimium2m/video/upload/v1782367587/yt1_qrwmdw.mp4",
       type: "large",
     },
     {
       id: 2,
       title: "YouTube Videos",
-      video: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367587/yt2_xdvyoj.mp4",
+      video: "https://res.cloudinary.com/gimium2m/video/upload/v1782367587/yt2_xdvyoj.mp4",
       type: "large",
     },
     {
       id: 3,
       title: "Ad Film",
-      video: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367616/ad2_uvpuzj.mp4",
+      video: "https://res.cloudinary.com/gimium2m/video/upload/v1782367616/ad2_uvpuzj.mp4",
       type: "small",
     },
     {
       id: 4,
       title: "UGC",
-      video: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367591/ugc3_j88exq.mp4",
+      video: "https://res.cloudinary.com/gimium2m/video/upload/v1782367591/ugc3_j88exq.mp4",
       type: "small",
     },
     {
       id: 5,
       title: "Founder Talk",
-      video: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367616/fv3_nyznuv.mp4",
+      video: "https://res.cloudinary.com/gimium2m/video/upload/v1782367616/fv3_nyznuv.mp4",
       type: "small",
     },
     {
       id: 6,
       title: "Jewellery Video",
-      video: "https://res.cloudinary.com/dor2qddak/video/upload/v1782367611/jw4_z7cxqt.mp4",
+      video: "https://res.cloudinary.com/gimium2m/video/upload/v1782367611/jw4_z7cxqt.mp4",
       type: "small",
     },
   ],
+};
 
   Graphics: [
     {

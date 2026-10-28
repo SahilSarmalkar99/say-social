@@ -1,26 +1,67 @@
+
 import fs from "fs";
-import path from "path";
+import ImageKit from "@imagekit/nodejs";
+
 import { sendEmail } from "../services/emailService.js";
 import JobRole from "../models/JobRole.js";
 import JobApplication from "../models/JobApplication.js";
 import CareerSetting from "../models/CareerSetting.js";
-import cloudinary from "../config/cloudinary.js";
-import crypto from "crypto";
+
+const imagekit = new ImageKit({
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+});
+
+const RESUME_FOLDER = "/saysocial/careers/resumes";
+
+const ALLOWED_RESUME_TYPES = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+
+// ========================================
+// HELPER FUNCTIONS
+// ========================================
+
+function deleteTemporaryFile(filePath) {
+  if (!filePath) return;
+
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (error) {
+    console.error("Temporary file cleanup failed:", error.message);
+  }
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+// ========================================
+// SUBMIT JOB APPLICATION
+// ========================================
 
 export async function submitApplication(req, res) {
-  let cloudinaryFile = null;
+  let imagekitFile = null;
 
   try {
     const { jobRoleId, name, phone, email, workLinks } = req.body;
 
-    // ------------------------------------
-    // VALIDATION
-    // ------------------------------------
-
-    if (!jobRoleId || !name || !phone || !req.file) {
-      if (req.file?.path && fs.existsSync(req.file.path)) {
-        fs.unlinkSync(req.file.path);
-      }
+    // Validate required fields
+    if (
+      !jobRoleId ||
+      !name?.trim() ||
+      !phone?.trim() ||
+      !req.file
+    ) {
+      deleteTemporaryFile(req.file?.path);
 
       return res.status(400).json({
         success: false,
@@ -28,19 +69,38 @@ export async function submitApplication(req, res) {
       });
     }
 
-    // ------------------------------------
-    // FIND JOB
-    // ------------------------------------
+    // Validate ImageKit configuration
+    if (
+      !process.env.IMAGEKIT_PRIVATE_KEY ||
+      !process.env.IMAGEKIT_PUBLIC_KEY ||
+      !process.env.IMAGEKIT_URL_ENDPOINT
+    ) {
+      deleteTemporaryFile(req.file.path);
 
+      return res.status(500).json({
+        success: false,
+        message: "ImageKit environment variables are missing",
+      });
+    }
+
+    // Validate resume type
+    if (!ALLOWED_RESUME_TYPES.has(req.file.mimetype)) {
+      deleteTemporaryFile(req.file.path);
+
+      return res.status(400).json({
+        success: false,
+        message: "Resume must be a PDF, DOC or DOCX file",
+      });
+    }
+
+    // Validate the active job role
     const job = await JobRole.findOne({
       _id: jobRoleId,
       isActive: true,
     });
 
     if (!job) {
-      if (req.file?.path && fs.existsSync(req.file.path)) {
-        fs.unlinkSync(req.file.path);
-      }
+      deleteTemporaryFile(req.file.path);
 
       return res.status(404).json({
         success: false,
@@ -48,276 +108,97 @@ export async function submitApplication(req, res) {
       });
     }
 
-    // ------------------------------------
-    // PARSE WORK LINKS
-    // ------------------------------------
-
+    // Parse work links
     const links =
       typeof workLinks === "string"
         ? workLinks
             .split("\n")
-            .map((x) => x.trim())
+            .map((link) => link.trim())
             .filter(Boolean)
         : [];
 
+    const originalName = req.file.originalname;
+    const mimetype = req.file.mimetype;
+    const fileSize = req.file.size;
 
-    const isPdf = req.file.mimetype === "application/pdf";
-// ------------------------------------
-// CLOUDINARY UPLOAD
-// ------------------------------------
+    // ========================================
+    // UPLOAD RESUME TO IMAGEKIT
+    // ========================================
 
-console.log("========================================");
-console.log("UPLOADING RESUME TO CLOUDINARY");
-console.log("========================================");
-
-console.log({
-  originalName: req.file.originalname,
-  mimetype: req.file.mimetype,
-  size: req.file.size,
-  localPath: req.file.path,
-});
-
-try {
- const timestamp = Math.floor(Date.now() / 1000);
-const folder = "saysocial/careers/resumes";
-
-// Cloudinary signed upload signature
-const signatureParams = `folder=${folder}&timestamp=${timestamp}`;
-
-const signature = crypto
-  .createHash("sha1")
-  .update(
-    signatureParams + process.env.CLOUDINARY_API_SECRET
-  )
-  .digest("hex");
-
-const fileBuffer = fs.readFileSync(req.file.path);
-
-const formData = new FormData();
-
-formData.append(
-  "file",
-  new Blob([fileBuffer], {
-    type: req.file.mimetype,
-  }),
-  req.file.originalname
-);
-
-formData.append(
-  "api_key",
-  process.env.CLOUDINARY_API_KEY
-);
-
-formData.append(
-  "timestamp",
-  String(timestamp)
-);
-
-formData.append(
-  "folder",
-  folder
-);
-
-formData.append(
-  "signature",
-  signature
-);
-
-const uploadUrl =
-  `https://api.cloudinary.com/v1_1/` +
-  `${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload`;
-
-console.log("========================================");
-console.log("DIRECT CLOUDINARY UPLOAD");
-console.log("========================================");
-
-console.log({
-  uploadUrl,
-  cloudName: process.env.CLOUDINARY_CLOUD_NAME,
-  apiKeyExists: Boolean(process.env.CLOUDINARY_API_KEY),
-  secretExists: Boolean(process.env.CLOUDINARY_API_SECRET),
-  timestamp,
-  folder,
-  filename: req.file.originalname,
-  mimetype: req.file.mimetype,
-});
-
-const cloudinaryResponse = await fetch(
-  uploadUrl,
-  {
-    method: "POST",
-    body: formData,
-  }
-);
-
-const responseText =
-  await cloudinaryResponse.text();
-
-console.log("========================================");
-console.log("CLOUDINARY HTTP RESPONSE");
-console.log("========================================");
-
-console.log("STATUS:", cloudinaryResponse.status);
-console.log(
-  "STATUS TEXT:",
-  cloudinaryResponse.statusText
-);
-
-console.log(
-  "X-Cld-Error:",
-  cloudinaryResponse.headers.get("x-cld-error")
-);
-
-console.log(
-  "X-Request-Id:",
-  cloudinaryResponse.headers.get("x-request-id")
-);
-
-console.log("BODY:", responseText);
-
-if (!cloudinaryResponse.ok) {
-  throw new Error(
-    `Cloudinary upload failed (${cloudinaryResponse.status}): ${responseText}`
-  );
-}
-
-cloudinaryFile = JSON.parse(responseText);
-
-console.log("========================================");
-console.log("CLOUDINARY UPLOAD SUCCESS");
-console.log("========================================");
-
-console.log({
-  public_id: cloudinaryFile.public_id,
-  secure_url: cloudinaryFile.secure_url,
-  resource_type: cloudinaryFile.resource_type,
-  format: cloudinaryFile.format,
-  bytes: cloudinaryFile.bytes,
-});
-
-  
-
-} catch (cloudinaryError) {
-  console.error("========================================");
-  console.error("CLOUDINARY UPLOAD FAILED");
-  console.error("========================================");
-
-  console.error({
-    message: cloudinaryError.message,
-    name: cloudinaryError.name,
-    http_code: cloudinaryError.http_code,
-    response: cloudinaryError.response,
-  });
-
-  if (req.file?.path && fs.existsSync(req.file.path)) {
-    try {
-      fs.unlinkSync(req.file.path);
-    } catch (cleanupError) {
-      console.error("Resume cleanup failed:", cleanupError);
-    }
-  }
-
-  return res.status(500).json({
-    success: false,
-    message: "Resume upload failed",
-    error: cloudinaryError.message,
-  });
-}
-
-    // ------------------------------------
-    // VERIFY CLOUDINARY RESPONSE
-    // ------------------------------------
-
-    console.log("========================================");
-    console.log("CLOUDINARY UPLOAD RESULT");
-    console.log("========================================");
-
-    console.log({
-      public_id: cloudinaryFile?.public_id,
-      secure_url: cloudinaryFile?.secure_url,
-      resource_type: cloudinaryFile?.resource_type,
-      format: cloudinaryFile?.format,
-      bytes: cloudinaryFile?.bytes,
+    console.log("Uploading resume to ImageKit:", {
+      originalName,
+      mimetype,
+      size: fileSize,
     });
 
-    if (
-      !cloudinaryFile ||
-      !cloudinaryFile.public_id ||
-      !cloudinaryFile.secure_url
-    ) {
-      console.error(
-        "Cloudinary upload returned an invalid response:",
-        cloudinaryFile
-      );
+    try {
+      imagekitFile = await imagekit.files.upload({
+        file: fs.createReadStream(req.file.path),
+        fileName: originalName,
+        folder: RESUME_FOLDER,
+        useUniqueFileName: true,
+      });
 
-      if (req.file?.path && fs.existsSync(req.file.path)) {
-        fs.unlinkSync(req.file.path);
+      if (!imagekitFile?.fileId || !imagekitFile?.url) {
+        throw new Error(
+          "ImageKit did not return a valid file ID and URL"
+        );
       }
+
+      console.log("ImageKit upload successful:", {
+        fileId: imagekitFile.fileId,
+        url: imagekitFile.url,
+        filePath: imagekitFile.filePath,
+      });
+    } catch (uploadError) {
+      console.error("ImageKit upload failed:", uploadError);
+
+      deleteTemporaryFile(req.file.path);
 
       return res.status(500).json({
         success: false,
-        message: "Resume uploaded but Cloudinary did not return a valid URL.",
+        message: "Resume upload failed",
+        error: uploadError.message,
       });
     }
 
-    // ------------------------------------
-    // DELETE TEMPORARY LOCAL FILE
-    // ------------------------------------
+    // Remove temporary local file
+    deleteTemporaryFile(req.file.path);
 
-    if (req.file?.path && fs.existsSync(req.file.path)) {
-      try {
-        fs.unlinkSync(req.file.path);
-        console.log("Temporary resume deleted.");
-      } catch (cleanupError) {
-        console.error(
-          "Temporary resume cleanup failed:",
-          cleanupError
-        );
-      }
-    }
-
-    // ------------------------------------
-    // BUILD RESUME OBJECT
-    // ------------------------------------
+    // ========================================
+    // PREPARE RESUME DATA
+    // Preserve existing MongoDB field names
+    // ========================================
 
     const resumeData = {
-      originalName: req.file.originalname,
-      filename: cloudinaryFile.public_id,
-      mimetype: req.file.mimetype,
-      size: req.file.size,
-      path: cloudinaryFile.secure_url,
-      url: cloudinaryFile.secure_url,
-      publicId: cloudinaryFile.public_id,
+      originalName,
+      filename: imagekitFile.name,
+      mimetype,
+      size: fileSize,
+      path: imagekitFile.url,
+      url: imagekitFile.url,
+      publicId: imagekitFile.fileId,
     };
 
-    console.log("========================================");
-    console.log("RESUME DATA TO MONGODB");
-    console.log("========================================");
-
-    console.log(resumeData);
-
-    // ------------------------------------
-    // SAVE APPLICATION
-    // ------------------------------------
+    // ========================================
+    // SAVE APPLICATION TO MONGODB
+    // ========================================
 
     const application = await JobApplication.create({
       jobRole: job._id,
       jobTitle: job.title,
-
       name: name.trim(),
       phone: phone.trim(),
       email: email?.trim().toLowerCase() || "",
-
       workLinks: links,
-
       resume: resumeData,
     });
 
     console.log("Application saved:", application._id);
 
-    // ------------------------------------
+    // ========================================
     // EMAIL CONFIGURATION
-    // ------------------------------------
+    // ========================================
 
     const setting = await CareerSetting.findOne().sort({
       createdAt: -1,
@@ -331,9 +212,9 @@ console.log({
     let emailDelivered = false;
     let confirmationDelivered = false;
 
-    // ------------------------------------
+    // ========================================
     // SEND ADMIN EMAIL
-    // ------------------------------------
+    // ========================================
 
     if (
       recipient &&
@@ -343,9 +224,7 @@ console.log({
       try {
         await sendEmail({
           to: recipient,
-
-          replyTo: email || process.env.MAIL_USER,
-
+          replyTo: email?.trim() || process.env.MAIL_USER,
           subject: `New Application: ${job.title} — ${name}`,
 
           text: `
@@ -360,13 +239,13 @@ Work links:
 ${links.length ? links.join("\n") : "None"}
 
 Resume:
-${cloudinaryFile.secure_url}
+${imagekitFile.url}
           `,
 
           attachments: [
             {
-              filename: req.file.originalname,
-              path: cloudinaryFile.secure_url,
+              filename: originalName,
+              path: imagekitFile.url,
             },
           ],
         });
@@ -377,30 +256,28 @@ ${cloudinaryFile.secure_url}
           `Application email sent successfully to ${recipient}`
         );
       } catch (emailError) {
-        console.error(
-          "APPLICATION EMAIL FAILED:",
-          emailError
-        );
+        console.error("APPLICATION EMAIL FAILED:", emailError);
       }
     } else {
       console.warn(
-        "Email not configured. Application was saved without email notification."
+        "Email is not configured. Application saved without admin notification."
       );
     }
 
-    // ------------------------------------
+    // ========================================
     // SEND APPLICANT CONFIRMATION
-    // ------------------------------------
+    // ========================================
+
+    const applicantEmail = email?.trim().toLowerCase();
 
     if (
-      email &&
+      applicantEmail &&
       process.env.MAIL_USER &&
       process.env.MAIL_PASS
     ) {
       try {
         await sendEmail({
-          to: email,
-
+          to: applicantEmail,
           subject: `Application received — ${job.title}`,
 
           text: `Hi ${name},
@@ -414,28 +291,22 @@ Say Social`,
 
           html: `
             <p>Hi ${escapeHtml(name)},</p>
-
             <p>
               Thanks for applying for
               <strong>${escapeHtml(job.title)}</strong>
               at Say Social.
             </p>
-
             <p>
               We received your application and will review it.
             </p>
-
-            <p>
-              Regards,<br/>
-              Say Social
-            </p>
+            <p>Regards,<br/>Say Social</p>
           `,
         });
 
         confirmationDelivered = true;
 
         console.log(
-          `Confirmation email sent successfully to ${email}`
+          `Confirmation email sent successfully to ${applicantEmail}`
         );
       } catch (confirmationError) {
         console.error(
@@ -445,9 +316,9 @@ Say Social`,
       }
     }
 
-    // ------------------------------------
+    // ========================================
     // RESPONSE
-    // ------------------------------------
+    // ========================================
 
     let message;
 
@@ -465,66 +336,73 @@ Say Social`,
     return res.status(201).json({
       success: true,
       message,
-
       data: application,
     });
   } catch (error) {
-    console.error("========================================");
-    console.error("APPLICATION SUBMISSION ERROR");
-    console.error("========================================");
-    console.error(error);
+    console.error("APPLICATION SUBMISSION ERROR:", error);
 
-    if (req.file?.path && fs.existsSync(req.file.path)) {
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (cleanupError) {
-        console.error(
-          "Resume cleanup failed:",
-          cleanupError
-        );
-      }
-    }
+    deleteTemporaryFile(req.file?.path);
 
     return res.status(500).json({
       success: false,
-      message:
-        error.message || "Could not submit application.",
+      message: "Could not submit application.",
     });
   }
 }
+
+// ========================================
+// GET ALL APPLICATIONS
+// ========================================
+
 export async function getApplications(req, res) {
   try {
-    res.json({
+    const applications = await JobApplication.find()
+      .populate("jobRole", "title type location")
+      .sort({ createdAt: -1 });
+
+    return res.json({
       success: true,
-      data: await JobApplication.find()
-        .populate("jobRole", "title type location")
-        .sort({ createdAt: -1 }),
+      data: applications,
     });
-  } catch (e) {
-    res.status(500).json({ success: false, message: e.message });
+  } catch (error) {
+    console.error("GET APPLICATIONS ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 }
+
+// ========================================
+// UPDATE APPLICATION STATUS
+// ========================================
+
 export async function updateApplicationStatus(req, res) {
   try {
-    const app = await JobApplication.findByIdAndUpdate(
+    const application = await JobApplication.findByIdAndUpdate(
       req.params.id,
       { status: req.body.status },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     );
-    if (!app)
-      return res
-        .status(404)
-        .json({ success: false, message: "Application not found" });
-    res.json({ success: true, data: app });
-  } catch (e) {
-    res.status(500).json({ success: false, message: e.message });
+
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found",
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: application,
+    });
+  } catch (error) {
+    console.error("UPDATE APPLICATION STATUS ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
-}
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }

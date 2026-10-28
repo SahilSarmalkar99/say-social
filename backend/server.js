@@ -1,30 +1,62 @@
+
 import "dotenv/config";
 
 import app from "./app.js";
 import connectDB from "./config/db.js";
-import cloudinary from "./config/cloudinary.js";
+import ImageKit from "@imagekit/nodejs";
+import { sendEmail } from "./services/emailService.js";
 
 const PORT = process.env.PORT || 5000;
 
-const startServer = async () => {
-  try {
-    // Connect Database
-    await connectDB();
+const imagekit = new ImageKit({
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+});
 
-    // Start Server
-    app.listen(PORT, () => {
-      console.log(`
- http://localhost:${PORT}
-`);
+// Generate secure ImageKit upload credentials
+app.get("/api/imagekit/auth", (req, res) => {
+  try {
+    if (!process.env.IMAGEKIT_PUBLIC_KEY ||
+        !process.env.IMAGEKIT_PRIVATE_KEY) {
+      return res.status(500).json({
+        success: false,
+        message: "ImageKit credentials are missing",
+      });
+    }
+
+    const auth = imagekit.helper.getAuthenticationParameters();
+
+    res.json({
+      success: true,
+      ...auth,
+      publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
     });
   } catch (error) {
-    console.error("Server Failed to Start");
-    console.error(error);
+    console.error("IMAGEKIT AUTH ERROR:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to generate ImageKit authentication",
+    });
   }
-};
+});
 
-import { sendEmail } from "./services/emailService.js";
+// Test ImageKit configuration
+app.get("/api/test-imagekit", (req, res) => {
+  const configured =
+    Boolean(process.env.IMAGEKIT_PUBLIC_KEY) &&
+    Boolean(process.env.IMAGEKIT_PRIVATE_KEY) &&
+    Boolean(process.env.IMAGEKIT_URL_ENDPOINT);
 
+  res.status(configured ? 200 : 500).json({
+    success: configured,
+    message: configured
+      ? "ImageKit environment variables are configured"
+      : "ImageKit environment variables are missing",
+    urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT || null,
+  });
+});
+
+// Test email
 app.get("/api/test-email", async (req, res) => {
   try {
     const info = await sendEmail({
@@ -54,22 +86,17 @@ app.get("/api/test-email", async (req, res) => {
   }
 });
 
-app.get("/api/test-cloudinary", async (req, res) => {
+const startServer = async () => {
   try {
-    const result = await cloudinary.api.ping();
+    await connectDB();
 
-    res.json({
-      success: true,
-      result,
+    app.listen(PORT, () => {
+      console.log(`Server running at http://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error("CLOUDINARY TEST ERROR:", error);
-
-    res.status(500).json({
-      success: false,
-      message: error.message,
-      http_code: error.http_code,
-    });
+    console.error("Server Failed to Start");
+    console.error(error);
   }
-});
+};
+
 startServer();
