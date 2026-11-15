@@ -197,7 +197,7 @@ export default function Navbar({ visible = true }) {
                   LOGO
               ================================================= */}
               <div className="justify-self-start flex items-center">
-                <NavLink to="/">
+                <NavLink to="/website">
                   <div className="flex items-center group cursor-pointer">
                     {logoUrl && (
                       <img
