@@ -24,12 +24,38 @@ import siteSettingRoutes from "./routes/siteSettingRoutes.js";
 const app = express();
 
 // Middlewares
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://say-social.vercel.app",
+  "https://say-social-admin.vercel.app",
+  "https://www.saysocial.in",
+  "https://saysocial.in",
+];
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174" , "https://say-social.vercel.app" , "https://say-social-admin.vercel.app" , "https://www.saysocial.in/website"],
+    origin: function (origin, callback) {
+      // Allow requests without an Origin header (e.g. server-to-server)
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.log("Blocked by CORS:", origin);
+      return callback(new Error(`Not allowed by CORS: ${origin}`));
+    },
     credentials: true,
-  }),
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
 );
+
+app.options("*", cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
