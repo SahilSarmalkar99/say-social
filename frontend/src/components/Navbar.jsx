@@ -81,23 +81,23 @@ export default function Navbar({ visible = true }) {
   const navLinks = [
     {
       name: "Work",
-      path: "/work",
+      path: "/website/work",
     },
     {
       name: "Team",
-      path: "/team",
+      path: "/website/team",
     },
     {
       name: "Projects",
-      path: "/project",
+      path: "/website/project",
     },
     {
       name: "Contact Us",
-      path: "/contact",
+      path: "/website/contact",
     },
     {
       name: "Careers",
-      path: "/careers",
+      path: "/website/careers",
     },
   ];
 
