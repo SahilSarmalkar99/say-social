@@ -24,7 +24,6 @@ import siteSettingRoutes from "./routes/siteSettingRoutes.js";
 const app = express();
 
 // Middlewares
-
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
@@ -36,26 +35,19 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow requests without an Origin header (e.g. server-to-server)
+    origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
       console.log("Blocked by CORS:", origin);
-      return callback(new Error(`Not allowed by CORS: ${origin}`));
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
-app.options("*", cors({
-  origin: allowedOrigins,
-  credentials: true,
-}));
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
